@@ -1,1 +1,6 @@
+# Only lecture notes and quizzes are tracked
+/*
+!/.gitignore
+!/lecture-notes/
+!/quizzes/
 .DS_Store

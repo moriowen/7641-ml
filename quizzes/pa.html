@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Probability & Statistics MCQ Bank</title>
+  <style>
+    :root { color-scheme: light dark; --page:#f6f6f3; --card:#fff; --text:#1c1c1a; --muted:#686862; --line:#d8d8d1; --accent:#245c46; --answer:#eef6f1; --correct:#2f8f5b; --wrong:#c1483c; }
+    @media (prefers-color-scheme: dark) { :root { --page:#171816; --card:#20211f; --text:#ededE8; --muted:#aaa9a1; --line:#3a3b37; --accent:#8ed0ad; --answer:#1b2b23; --correct:#3fae74; --wrong:#e06a5c; } }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--text); font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(820px, calc(100% - 32px)); margin:48px auto 80px; }
+    header { margin-bottom:24px; }
+    h1 { margin:0 0 8px; font-size:clamp(1.8rem,5vw,2.7rem); line-height:1.12; letter-spacing:-.03em; }
+    h2 { margin:42px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line); font-size:1.18rem; }
+    p { margin:0; }
+    .intro { color:var(--muted); max-width:68ch; }
+    .count { margin-top:10px; font-size:.9rem; color:var(--muted); }
+    .controls { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 0; margin-bottom:8px; background:var(--page); border-bottom:1px solid var(--line); }
+    .controls .label { font-size:.85rem; color:var(--muted); margin-right:2px; }
+    .filter { cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; padding:6px 14px; font-size:.85rem; font-weight:600; }
+    .filter.active { background:var(--accent); border-color:var(--accent); color:var(--page); }
+    .reset { margin-left:auto; cursor:pointer; border:1px solid var(--line); background:transparent; color:var(--muted); border-radius:6px; padding:6px 10px; font-size:.8rem; }
+    .reset:hover { color:var(--text); border-color:var(--text); }
+    .empty-state { padding:28px 8px; color:var(--muted); font-style:italic; }
+    ol.questions { margin:0; padding-left:2rem; }
+    li.question { padding:18px 18px 18px 8px; border-bottom:1px solid var(--line); }
+    .prompt { margin-bottom:10px; font-weight:620; }
+    ol.options { margin:0 0 12px; padding-left:1.7rem; }
+    ol.options li { padding:2px 0; }
+    code { font-family:"SFMono-Regular",Consolas,monospace; font-size:.94em; }
+    details { background:var(--answer); border:1px solid var(--line); border-radius:6px; padding:8px 11px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+    .answer { margin-top:8px; }
+    .answer strong { color:var(--accent); }
+    .track { margin-top:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .mark { cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:6px; padding:6px 10px; font-size:.85rem; font-weight:600; }
+    .mark.correct.active { background:var(--correct); border-color:var(--correct); color:#fff; }
+    .mark.wrong.active { background:var(--wrong); border-color:var(--wrong); color:#fff; }
+    .status-label { font-size:.8rem; color:var(--muted); }
+    footer { margin-top:44px; color:var(--muted); font-size:.86rem; }
+    @media print { :root { color-scheme:light; } body { background:#fff; } main { width:100%; margin:0; } details { break-inside:avoid; } .controls { position:static; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Probability &amp; Statistics MCQ Bank</h1>
+      <p class="intro">Practice questions based on the CS 4641/7641 probability &amp; statistics deck, the professor's annotated notes, and the lecture-notes keyword list. Every item is multiple choice. Open the answer only when you are ready to check your work.</p>
+      <p class="count" id="count"></p>
+    </header>
+    <div class="controls">
+      <span class="label">Show:</span>
+      <button class="filter active" data-filter="all" type="button">All</button>
+      <button class="filter" data-filter="wrong" type="button">Wrong only</button>
+      <button class="filter" data-filter="unanswered" type="button">Unanswered</button>
+      <button class="filter" data-filter="correct" type="button">Correct only</button>
+      <button class="reset" id="reset" type="button">Reset progress</button>
+    </div>
+    <p class="empty-state" id="emptyState" hidden></p>
+    <div id="bank"></div>
+    <footer>Source coverage: sample spaces and random variables, PMF/PDF/CDF, named distributions, joint/marginal/conditional probability, independence and conditional independence, Bayes' rule, expectation and moments, variance/covariance/correlation, uncorrelated vs independent, the multivariate Gaussian and its closure properties, the central limit theorem, probability vs likelihood, and maximum likelihood estimation. Right/wrong marks are saved in this browser only (localStorage) — they don't sync across devices.</footer>
+  </main>
+  <script>
+    const sections = [
+      { title: "Sample space, random variables, distributions", questions: [
+        ["What is a sample space?", ["The set of events with probability above 0.5", "The collection of all possible outcomes of an experiment", "A single observed outcome", "The set of all random variables in a model"], 1, "The sample space S is every outcome the experiment could produce, finite or infinite."],
+        ["What is an event?", ["A single fixed outcome only", "Any subset of the sample space", "The probability of an experiment", "A random variable's mean"], 1, "An event is a subset of S — e.g. seeing a 1 or a 6 on a die roll."],
+        ["What does the shorthand <code>p(x)</code> mean?", ["p(X < x)", "p(X = x)", "The derivative of the CDF at 0", "The number of outcomes in the sample space"], 1, "p(x) is shorthand for P(X = x), the probability the random variable X takes value x."],
+        ["What must every probability p(x) satisfy?", ["p(x) can be any real number", "p(x) >= 0", "p(x) = 1 for all x", "p(x) < 0 is allowed for continuous variables"], 1, "Probabilities are never negative, discrete or continuous."],
+        ["Which is an example of a discrete random variable?", ["Temperature", "The result of a coin flip", "A GPS coordinate", "Time until failure"], 1, "A coin flip takes countably many values (heads/tails), so it is discrete."],
+        ["Which is an example of a continuous random variable?", ["A dice roll", "A DNA nucleotide (A/C/G/T)", "Temperature", "The number of successes in n trials"], 2, "Temperature takes real values over a continuum."],
+        ["What does a PMF describe?", ["A continuous random variable", "A discrete random variable, where every value is a genuine probability", "Only Gaussian variables", "The cumulative probability up to x"], 1, "The probability mass function assigns actual probabilities to each discrete outcome, and they sum to 1."],
+        ["What does a PDF describe?", ["A discrete random variable", "A continuous random variable, via density values rather than probabilities directly", "The sum of all probabilities", "A joint distribution only"], 1, "The probability density function's height is a density, not a probability; only its integral over an interval is a probability."],
+        ["For a PMF, which condition must hold?", ["integral p(x) dx = 1", "sum_{x in A} p(x) = 1", "p(x) can exceed 1", "p(x) is undefined at the mode"], 1, "A PMF's values are true probabilities and must sum to exactly 1 over the sample space."],
+        ["For a PDF, which condition must hold?", ["sum p(x) = 1", "integral p(x) dx = 1", "p(x) <= 1 everywhere", "p(x) >= 1 everywhere"], 1, "A PDF integrates to 1 over its support; the height itself is unconstrained above 1."],
+        ["Can a probability density value p(x) exceed 1?", ["Never", "Yes — only the area under the curve is bounded by 1", "Only for discrete variables", "Only if the mean is negative"], 1, "Densities are not probabilities, so a tall, narrow PDF can have p(x) > 1 at a point."],
+        ["What is P(X = x) for a single point x of a continuous random variable?", ["1", "Undefined", "0", "Equal to the density p(x)"], 2, "Since probability is the integral (area) over an interval, a single point has zero width and zero probability."],
+        ["What does the CDF F_x(x) represent?", ["p(X = x)", "p(X <= x)", "p(X >= x)", "The variance of X"], 1, "The cumulative distribution function gives the probability of landing at or below x."],
+        ["What is the uniform density f_x(x) = 1/(b-a) valid for?", ["All real x", "a <= x <= b", "x >= 0 only", "x = a or x = b only"], 1, "Outside [a, b] the uniform density is 0; every point inside is equally likely."],
+        ["What is the model parameter set for a uniform density?", ["{mu, sigma}", "{a, b}", "{p}", "{mu}"], 1, "The uniform density is fully specified by its endpoints a and b."],
+        ["What is the CDF of the exponential density f_x(x) = (1/mu) e^(-x/mu)?", ["F_x(x) = 1 - e^(-x/mu) for x >= 0", "F_x(x) = e^(-x/mu)", "F_x(x) = mu e^(-x)", "F_x(x) = x/mu"], 0, "Integrating the exponential density from 0 to x gives 1 - e^(-x/mu)."],
+        ["A Bernoulli distribution models what?", ["The number of successes across n trials", "A single trial with two outcomes", "A continuous measurement", "The sum of two Gaussians"], 1, "Bernoulli is the single-trial special case; Binomial extends it to n trials."],
+        ["For a Bernoulli variable, what is p(x = 0)?", ["p", "1 - p", "0", "1/2 always"], 1, "By definition p(x=1) = p and p(x=0) = 1 - p."],
+        ["What does the Binomial distribution model?", ["A single Bernoulli trial", "The number of successes k in n independent Bernoulli trials", "The variance of a Gaussian", "A continuous density over [0,1]"], 1, "P(X=k) = C(n,k) p^k (1-p)^(n-k) counts the ways to get k successes out of n trials."],
+        ["In the Binomial formula P(X=k) = C(n,k) p^k (1-p)^(n-k), what does n-k represent?", ["The number of trials", "The number of failures", "The probability of success", "The variance"], 1, "k counts successes, so the remaining n-k trials are failures."],
+        ["What does the binomial coefficient C(n,k) count?", ["Ordered arrangements of k items from n", "The number of ways to select k distinct combinations out of n trials, irrespective of order", "The probability of k successes", "The number of Bernoulli trials"], 1, "C(n,k) is a pure combinatorial count of unordered subsets."],
+        ["What two parameters fully determine a Gaussian (normal) density?", ["a and b (endpoints)", "mu (mean) and sigma^2 (variance)", "n and k", "Only sigma"], 1, "f(x|mu, sigma^2) is centered at mu with spread controlled by sigma^2."],
+      ]},
+      { title: "Joint, conditional, and independence", questions: [
+        ["How is joint probability p(X=x_i, Y=y_j) defined from counts?", ["c_i / N", "n_ij / N", "n_ij / c_i", "c_j / c_i"], 1, "n_ij counts trials where both X=x_i and Y=y_j happened, out of N total trials."],
+        ["How is marginal probability p(X=x_i) defined from counts?", ["n_ij / N", "c_i / N", "n_ij / c_i", "n_ij / c_j"], 1, "c_i is the total count of X=x_i across all values of Y, divided by N."],
+        ["How is conditional probability p(Y=y_j | X=x_i) defined from counts?", ["n_ij / N", "c_i / N", "n_ij / c_i", "c_j / N"], 2, "Conditional probability restricts the denominator to only the worlds where X=x_i already happened (c_i), not the full N."],
+        ["What does the professor's annotation say to do with 'joint probability' as a concept?", ["Memorize it first, above all else", "Add it to a 'do not like' list — it's easy to compute from counts but easy to misuse", "Ignore it entirely, it's never tested", "Treat it as identical to conditional probability"], 1, "His annotated notes literally flag joint probability as something to be wary of, preferring reasoning via conditionals and the product/sum rules."],
+        ["What is the sum rule (marginalization)?", ["p(X,Y) = p(Y|X)p(X)", "p(X) = sum_Y p(X,Y)", "p(X|Y) = p(Y|X)p(X)/p(Y)", "p(X,Y) = p(X)p(Y)"], 1, "Summing a joint distribution over Y recovers the marginal of X."],
+        ["What is the product rule (chain rule)?", ["p(X,Y) = p(Y|X)p(X)", "p(X,Y) = p(X) + p(Y)", "p(X) = sum_Y p(X,Y)", "p(X|Y) = p(X)"], 0, "It follows directly from counts: n_ij/N = (n_ij/c_i)(c_i/N)."],
+        ["Two variables X and Y are independent when...", ["p(X,Y) = 0", "p(X|Y) = p(X), equivalently p(X,Y) = p(X)p(Y)", "p(X|Y) = p(Y|X)", "Their variances are equal"], 1, "Independence means knowing Y tells you nothing about X, and the joint factorizes into the product of marginals."],
+        ["What does conditional independence p(X|Y,Z) = p(X|Z) mean?", ["X and Y are always independent", "X and Y are independent once Z is known", "Z has no effect on X or Y", "X, Y, and Z are all equal"], 1, "Once Z is conditioned on, Y drops out of the conditioning set for X."],
+        ["In the deck's flu example, P(Flu | Virus, DrinkBeer) = P(Flu | Virus) means what?", ["Drinking beer causes the flu", "Beer drops out of the conditioning set once the virus is known", "Virus and beer are independent of each other", "Flu is independent of virus"], 1, "This is the textbook conditional-independence statement: beer adds no information about flu once virus status is known."],
+        ["Does conditional independence imply plain (unconditional) independence?", ["Yes, always", "No — neither implies the other in general", "Only for Gaussian variables", "Only when Z is binary"], 1, "Conditional independence and plain independence are logically separate; one can hold without the other."],
+        ["Repeated use of the product rule to write a joint over many variables as a chain of conditionals, combined with conditional-independence assumptions, is the machinery behind which method?", ["PCA", "Naive Bayes", "Gradient descent", "K-means"], 1, "Deleting variables from conditioning sets via conditional independence is exactly what makes Naive Bayes tractable."],
+      ]},
+      { title: "Bayes' rule", questions: [
+        ["What is the correct statement of Bayes' rule?", ["P(X|Y) = P(X,Y)/P(Y) = P(Y|X)P(X)/P(Y)", "P(X|Y) = P(X)P(Y)", "P(X|Y) = P(Y|X)", "P(X|Y) = P(X) - P(Y)"], 0, "Bayes' rule reverses a conditional using the joint-to-marginal ratio, then the product rule."],
+        ["In P(X|Y) = P(Y|X)P(X)/P(Y), what is P(X) called?", ["The posterior", "The likelihood", "The prior", "The evidence"], 2, "P(X) is the prior belief about X before observing Y."],
+        ["In Bayes' rule, what is P(Y|X) called?", ["The prior", "The likelihood", "The posterior", "The evidence"], 1, "P(Y|X) measures how probable the observed evidence Y would be if X held."],
+        ["In Bayes' rule, what is P(X|Y) called?", ["The prior", "The evidence", "The posterior", "The likelihood"], 2, "P(X|Y) is the updated belief about X after observing Y."],
+        ["What role does P(Y) play in Bayes' rule?", ["It is the prior", "It is the posterior", "It is the normalizing denominator (evidence)", "It always equals 1"], 2, "P(Y) normalizes the numerator, obtained by summing over every value of the unknown: P(Y) = sum_i P(Y|X=x_i)P(X=x_i)."],
+        ["In the binary case, how is the evidence P(Y) expanded?", ["P(Y) = P(X)P(not X)", "P(Y) = P(Y|X)P(X) + P(Y|not X)P(not X)", "P(Y) = P(X|Y) + P(not X|Y)", "P(Y) = 1 - P(X)"], 1, "This sums the joint probability over both possible states of X."],
+        ["Does Bayes' rule still hold inside a fixed conditioning context Z?", ["No, Bayes' rule only works unconditionally", "Yes — P(Y|X,Z) = P(X|Y,Z)P(Y,Z)/P(X,Z)", "Only if Z is independent of X and Y", "Only for discrete Z"], 1, "The conditioned form of Bayes' rule holds inside any fixed context Z."],
+        ["Why is 'fraction of the worlds in which X is true given Y is true' a useful way to read P(X|Y)?", ["It only applies to continuous variables", "It gives the intuitive meaning behind the formal ratio P(X,Y)/P(Y)", "It replaces the need for the product rule", "It is only valid for Bayes' rule, not conditional probability generally"], 1, "This is the standard intuition the deck uses to motivate the formal definition."],
+      ]},
+      { title: "Expectation, variance, covariance, correlation", questions: [
+        ["What is E_X[g(X)] in general?", ["integral x dx", "integral g(x) p_X(x) dx (or the analogous sum for discrete X)", "The mode of X", "sum g(x)"], 1, "Expectation is the weighted average of g(X) under X's distribution."],
+        ["What is the mean mu?", ["E_X[X^2]", "E_X[X]", "Var(X)", "The median of X"], 1, "Mean is expectation of the variable itself."],
+        ["What is the N-th central moment?", ["E[g(X)] with g(x) = x^n", "E[g(X)] with g(x) = (x - mu)^n", "Var(X)/n", "The N-th derivative of the CDF"], 1, "Central moments are taken about the mean rather than about zero."],
+        ["Which linearity property of expectation is correct?", ["E[X+Y] = E[X]+E[Y] only if X and Y are independent", "E[X+Y] = E[X]+E[Y] regardless of independence", "E[aX] = E[X] for any a", "E[a+X] = a*E[X]"], 1, "Linearity of expectation holds unconditionally, independent or not."],
+        ["What is Var(X) in terms of moments?", ["E_X[X] - mu", "E_X[(X-E_X[X])^2] = E_X[X^2] - E_X[X]^2", "E_X[X^2]", "sigma (not squared)"], 1, "Variance is the second central moment, and it has this equivalent computational form."],
+        ["How does variance behave under scaling: Var(aX)?", ["a * Var(X)", "a^2 * Var(X)", "Var(X) (unchanged)", "a + Var(X)"], 1, "Scaling squares inside the variance because it involves squared deviations."],
+        ["How does variance behave under a shift: Var(a+X)?", ["Var(X) — unchanged", "a + Var(X)", "a^2 * Var(X)", "0"], 0, "Shifting a variable by a constant does not change its spread."],
+        ["What is the worked distinction between 'mean' and 'average' in the annotated notes?", ["They are always identical", "avg(X) = E[g(X)] only when the sample's empirical frequencies match the distribution's probabilities", "Average only applies to continuous variables", "Mean is always larger than average"], 1, "For X=[1,2,3] with p(X)=[1/6,2/6,3/6], E[g(X)]=14/6 differs from the plain average 2; they coincide only once the sample repeats values in proportion to their probabilities, e.g. X=[1,2,2,3,3,3]."],
+        ["What is covariance cov(X,Y)?", ["E[X]E[Y]", "E[(X-E[X])(Y-E[Y])] = E[XY]-E[X]E[Y]", "Var(X)+Var(Y)", "corr(X,Y) * 2"], 1, "Covariance measures the tendency of two centered variables to move together."],
+        ["What does a negative covariance indicate?", ["X and Y are independent", "X and Y tend to move in opposite directions", "X and Y are identical", "The correlation is undefined"], 1, "Negative covariance means deviations from the means tend to have opposite signs."],
+        ["What is Var(X+Y)?", ["Var(X)+Var(Y)", "Var(X)+2cov(X,Y)+Var(Y)", "Var(X)-Var(Y)", "cov(X,Y)^2"], 1, "The cross term 2cov(X,Y) vanishes only when X and Y are uncorrelated."],
+        ["What is correlation corr(X,Y)?", ["cov(X,Y)", "cov(X,Y) / (sigma_X * sigma_Y)", "E[X]/E[Y]", "cov(X,Y)^2"], 1, "Correlation normalizes covariance by both standard deviations, giving a unit-free number in [-1,1]."],
+        ["What does 'uncorrelated' (cov(X,Y)=0) rule out?", ["Any relationship at all between X and Y", "Only a linear relationship", "Independence", "Nothing — it is meaningless"], 1, "Zero covariance only rules out a linear association; nonlinear dependence can remain."],
+        ["Does independence imply uncorrelated?", ["No", "Yes, but the converse is false in general", "Only for Gaussian variables", "Only for discrete variables"], 1, "Independence is the stronger condition; it always implies zero covariance, but zero covariance need not imply independence."],
+        ["In the annotated worked example with X=Z (standard Gaussian), Y=Z^2, and h=Z^3, why is cov(X,Y)=0 despite total dependence?", ["Because Z is discrete", "Because E[Z^3]=0 for a symmetric-about-0 variable, making E[XY]-E[X]E[Y] collapse to 0-0", "Because Y is not really a function of X", "Because covariance cannot be computed for nonlinear functions"], 1, "Z^3 is an odd function, so it averages to zero for a distribution symmetric about 0, giving zero covariance even though Y=Z^2 is a deterministic (fully dependent) function of X=Z."],
+        ["For jointly Gaussian variables, how do uncorrelated and independent relate?", ["They never coincide", "They coincide — uncorrelated implies independent in this special case", "Independent implies dependent", "The relationship depends on the sample size"], 1, "The general implication is one-directional, but for jointly Gaussian variables the two notions coincide."],
+        ["What is the professor's diagram for the direction of implication?", ["Uncorrelated -> Independent -> Linear independent", "Independent -> Uncorrelated -> Linear independent", "Linear independent -> Independent -> Uncorrelated", "They are all equivalent"], 1, "His arrow chain runs Independent => uncorrelated => linear independent, one direction only."],
+        ["What does the covariance matrix Sigma contain?", ["Only the means of each variable", "Variances on the diagonal and pairwise covariances off it", "Only correlations", "The eigenvalues of the data"], 1, "Sigma = Cov(X) = E[(X-mu)(X-mu)^T], with variances on the diagonal."],
+        ["What two properties does a covariance matrix always have?", ["Diagonal and invertible", "Symmetric and positive semidefinite", "Skew-symmetric and full rank", "Orthogonal and diagonal"], 1, "Cov matrices are always symmetric (sigma_hw = sigma_wh) and PSD."],
+        ["Using the data-matrix form with centered X-bar, how is variance computed for a single feature?", ["Var = X-bar X-bar^T", "Var = (1/N) X-bar^T X-bar", "Var = N * X-bar", "Var = X-bar / N"], 1, "This scalar form generalizes directly to the d x d covariance matrix Cov = (1/N) X-bar^T X-bar for d features."],
+        ["How is the correlation matrix COR obtained from the centered matrix X-bar?", ["COR = Cov directly, no change needed", "Standardize each column by its own std dev to get X*, then COR = (1/N) X*^T X*", "COR = X-bar^T X-bar without dividing by N", "COR is the inverse of the covariance matrix"], 1, "Standardization (dividing each centered column by its standard deviation) forces every diagonal entry of COR to 1 and every off-diagonal entry into [-1,1]."],
+      ]},
+      { title: "The multivariate Gaussian", questions: [
+        ["What is the multivariate Gaussian density's exponent?", ["-(x-mu)/sigma", "-1/2 (x-mu)^T Sigma^-1 (x-mu)", "-(x-mu)^2/(2sigma)", "-log(sigma)"], 1, "This quadratic form, the Mahalanobis distance, is the exponent of the density."],
+        ["What is the moment parameterization of a multivariate Gaussian?", ["Only mu", "mu = E(X) and Sigma = Cov(X)", "Only Sigma", "The mode and the median"], 1, "A Gaussian is fully described by its first two moments — nothing else is needed."],
+        ["What does the Mahalanobis distance Delta^2 = (x-mu)^T Sigma^-1 (x-mu) represent geometrically?", ["Euclidean distance from the mean, unmodified", "Squared distance from the mean, rescaled by the covariance so spread-out directions count less", "The determinant of Sigma", "The correlation between two features"], 1, "It reweights ordinary distance by the inverse covariance, so level sets are ellipsoids along Sigma's eigenvectors."],
+        ["What shape do the level sets of a multivariate Gaussian density form?", ["Perfect circles regardless of Sigma", "Ellipsoids whose axes are the eigenvectors of Sigma", "Straight lines", "Random point clouds"], 1, "Because the exponent is the Mahalanobis distance, level sets of density are level sets of that distance — ellipsoids."],
+        ["What does the linear transform property say about a Gaussian X ~ N(mu, Sigma) under AX+b?", ["It is no longer Gaussian", "AX+b ~ N(A*mu+b, A*Sigma*A^T)", "AX+b ~ N(mu, Sigma) unchanged", "Only the mean transforms; Sigma stays fixed"], 1, "A linear transform of a Gaussian is Gaussian, with mean and covariance transforming accordingly."],
+        ["Do E(AX+b) = A*E(X)+b and Cov(AX+b) = A*Cov(X)*A^T hold only for Gaussian X?", ["Yes, only for Gaussian", "No — they hold for any distribution; the Gaussian-specific result is that AX+b stays Gaussian", "No, they never hold", "Only for discrete X"], 1, "The moment-transformation formulas are general; what's special to Gaussians is that the transformed variable remains Gaussian."],
+        ["What is the sum property of independent Gaussians?", ["The sum is never Gaussian", "The sum of two independent Gaussians is Gaussian with mu_y=mu_1+mu_2, Sigma_y=Sigma_1+Sigma_2", "The sum's mean is the product of the means", "Sums of Gaussians require them to be identically distributed"], 1, "Means and covariances simply add when the two Gaussians are independent."],
+        ["What happens when you multiply two Gaussian functions together?", ["The result is never Gaussian-shaped", "The result is proportional to another Gaussian function, but no longer normalized", "The result is always the uniform density", "The result is undefined"], 1, "N(a,A)N(b,B) is proportional to N(c,C) with C=(A^-1+B^-1)^-1 and c=C*A^-1*a+C*B^-1*b — the product loses its normalization constant."],
+        ["What does the central limit theorem (CLT) state?", ["Every individual sample becomes Gaussian as n grows", "The distribution of the sample mean of n i.i.d. draws tends to normal as n grows, regardless of the original distribution's shape", "Only Gaussian-distributed populations obey the CLT", "The CLT requires the population variance to be zero"], 1, "The deck's biased-dice illustration shows means of repeated size-4 samples piling into a bell curve even though the underlying pmf is skewed."],
+      ]},
+      { title: "Probability vs. likelihood, and MLE", questions: [
+        ["What is the key difference between 'probability' and 'likelihood'?", ["They are the same thing with different names", "Probability fixes parameters and varies the data; likelihood fixes the data and varies the parameters", "Likelihood integrates to 1 over theta; probability does not", "Probability only applies to discrete variables"], 1, "Reading p(data|theta) as a function of data gives probability; reading the same expression as a function of theta gives likelihood."],
+        ["Does the likelihood function L(theta|X) integrate to 1 over theta?", ["Yes, always", "No — it is not a probability distribution over theta", "Only for Gaussian likelihoods", "Only when theta is discrete"], 1, "Likelihood is not normalized over the parameter space; only probability distributions over data integrate/sum to 1."],
+        ["In the deck's worked example comparing (a=2,b=1) vs (a=1,b=1) Gaussians against the same fixed data, how is the 'better' parameter setting chosen?", ["Whichever has the larger a value", "Whichever setting makes the observed data sit under the taller part of its density, i.e. gives the larger likelihood product", "Whichever has b=1", "They are always equally good since both are Gaussian"], 1, "The likelihood L(theta|X) = product of f(x^(i)|a,b) is computed for each candidate and the larger product wins."],
+        ["What does the i.i.d. assumption let you do to the joint likelihood?", ["Ignore the data entirely", "Turn the joint likelihood into a product of individual densities/probabilities", "Assume all data points are identical", "Replace probabilities with variances"], 1, "Independent and identically distributed observations let L(theta|X) = product_i P(x^(i)|theta)."],
+        ["What is MLE (maximum likelihood estimation)?", ["Choosing theta to minimize the likelihood", "Choosing theta to maximize L(theta|X), making the observed data most probable", "Choosing theta so that the prior is maximized", "Averaging all possible parameter values"], 1, "theta_hat = argmax_theta L(theta|X)."],
+        ["Why take the log of the likelihood before optimizing?", ["It changes which theta maximizes the function", "log(a*b) = log(a)+log(b) turns a product into an easier-to-differentiate sum, and since log is monotonic the maximizer is unchanged", "It is required to make L sum to 1", "It converts a maximization into a minimization automatically"], 1, "This is 'the trick' the deck names explicitly — monotonic transforms preserve the argmax."],
+        ["For the Bernoulli MLE derivation, what is theta_hat?", ["The sample variance", "(1/n) sum_i x^(i) — the observed fraction of heads/successes", "Always 0.5", "The sample median"], 1, "Setting the log-likelihood derivative to zero yields the sample mean as the MLE for a Bernoulli parameter."],
+        ["In the worked numeric example H,H,H,T (encoded H->1,T->0), what is theta_hat?", ["1/4", "1/2", "3/4", "1"], 2, "theta_hat = (1+1+1+0)/4 = 3/4."],
+        ["For the Gaussian MLE, solving d/da[l(a,b|X)]=0 gives what for a?", ["a = 0", "a = (1/N) sum x^(i) = mu — the sample mean", "a = the sample variance", "a = 1/N"], 1, "The MLE for the Gaussian mean parameter recovers the ordinary sample mean."],
+        ["For the Gaussian MLE, solving d/db[l(a,b|X)]=0 gives what for b?", ["b = mu", "b = (1/N) sum (x^(i)-mu)^2 = sigma^2 — the (biased) sample variance", "b = 0", "b = N"], 1, "MLE recovers the sample variance using the biased 1/N normalization, not 1/(N-1)."],
+        ["What is an 'objective function' in this context?", ["Always a loss to be minimized", "The quantity being optimized during training — here the (log-)likelihood, maximized", "A synonym for the prior", "The determinant of the covariance matrix"], 1, "The deck notes that later topics usually minimize a loss, but here the objective (log-likelihood) is maximized."],
+        ["What does 'probability: inferring probabilistic quantities for data given fixed models' contrast with in the deck?", ["Nothing — it is the same as statistics", "Statistics: inferring a model given fixed data observations (e.g. clustering, classification, regression)", "Bayes' rule", "The central limit theorem"], 1, "The deck explicitly frames probability and statistics as inverse problems of each other."],
+      ]},
+      { title: "Conceptual gotchas & extensions (not stated directly on the slides)", questions: [
+        ["Two events A and B are mutually exclusive (disjoint) and both have nonzero probability. Are they independent?", ["Yes, always", "No — mutually exclusive events with nonzero probability can never be independent", "Only if P(A) = P(B)", "Mutual exclusivity and independence mean the same thing"], 1, "Disjoint events have P(A and B) = 0, but independence requires P(A and B) = P(A)P(B) > 0 since both probabilities are nonzero — a direct contradiction. Confusing 'disjoint' with 'independent' is one of the most common mix-ups."],
+        ["If P(A) = 0, are A and some other event B automatically independent?", ["No — independence must be checked case by case", "Yes, trivially: P(A and B) <= P(A) = 0 = P(A)P(B), so the independence equation holds no matter what B is", "Only if B also has probability 0", "This situation cannot occur for real events"], 1, "A probability-zero event is independent of everything by the letter of the definition, even though this is a degenerate, not very meaningful case."],
+        ["Conditional probability P(A|B) is only well-defined when...", ["A and B are independent", "P(B) > 0", "P(A) > 0", "A and B are disjoint"], 1, "P(A|B) = P(A,B)/P(B) requires dividing by P(B), so conditioning on a probability-zero event is undefined."],
+        ["A disease has 1% prevalence. A test is 99% sensitive (P(+|disease)=0.99) and 99% specific (P(-|no disease)=0.99). A random person tests positive. What is P(disease|+), approximately?", ["99%", "50%", "1%", "90%"], 1, "Bayes' rule: P(+) = .99(.01) + .01(.99) = .0198, so P(disease|+) = .0099/.0198 = 0.5. Despite a '99% accurate' test, the low base rate keeps the posterior at only 50% — this is the classic base-rate fallacy, and quizzes love to test it numerically."],
+        ["What does the base-rate fallacy specifically warn against?", ["Ignoring the likelihood term entirely", "Treating a high-sounding likelihood P(evidence|hypothesis) as if it were the posterior P(hypothesis|evidence), while ignoring how rare the hypothesis is a priori", "Using conditional independence assumptions", "Assuming a uniform prior"], 1, "The fallacy is mistaking sensitivity/specificity (likelihoods) for the actual posterior probability, which also depends heavily on the prior P(X)."],
+        ["If X and Y are each individually (marginally) Gaussian, does that guarantee the pair (X, Y) is jointly Gaussian?", ["Yes, always", "No — each marginal can be Gaussian while the pair is not jointly Gaussian, so the 'uncorrelated + jointly Gaussian implies independent' result does not automatically apply just because both marginals look Gaussian", "Yes, but only in one dimension", "Only if X and Y are independent to begin with"], 1, "This is a classic trap: you can construct dependent X and Y that are each marginally Gaussian and even uncorrelated, yet not independent, because the joint distribution isn't the bivariate Gaussian shape. Joint Gaussianity is a stronger condition than 'both marginals are Gaussian.'"],
+        ["What is cov(X, X)?", ["Always 0", "Always 1", "Var(X)", "corr(X, X)"], 2, "Setting Y = X in cov(X,Y) = E[(X-E[X])(Y-E[Y])] gives E[(X-E[X])^2], which is exactly the definition of Var(X)."],
+        ["How does adding a constant a to X affect cov(X, Y)?", ["Multiplies cov(X,Y) by a", "Adds a to cov(X,Y)", "Leaves cov(X,Y) unchanged", "Forces cov(X,Y) to zero"], 2, "cov(X+a, Y) = E[((X+a)-E[X+a])(Y-E[Y])] = E[(X-E[X])(Y-E[Y])] = cov(X,Y) — a shift cancels out; only scaling changes covariance."],
+        ["If Z = -3Y, how does corr(X, Z) compare to corr(X, Y)?", ["Identical", "Same magnitude, opposite sign", "Multiplied by -3", "Always exactly zero"], 1, "Correlation is invariant to positive rescaling but flips sign under a negative scalar: corr(X, -3Y) = -corr(X, Y), even though the strength of the linear relationship is unchanged."],
+        ["The notes state 'the sum of two independent Gaussians is Gaussian.' What happens if the two Gaussians are dependent but not jointly Gaussian?", ["The sum is still guaranteed Gaussian", "The sum is not guaranteed to be Gaussian — the stated property explicitly requires independence (or joint Gaussianity)", "The sum becomes uniform", "The sum's mean is undefined"], 1, "Drop the independence assumption without joint Gaussianity and the clean closure property no longer holds — a common quiz trap for students who over-generalize the rule."],
+        ["Why does the Gaussian MLE for variance, b = (1/N) sum (x_i - mu)^2, tend to underestimate the true population variance?", ["It's simply a typo in most derivations", "Because mu is estimated from the same sample being used to estimate variance, using up a 'degree of freedom' and making the 1/N estimator biased low — the unbiased correction uses 1/(N-1)", "Because MLE always overestimates variance", "Because MLE cannot estimate variance at all"], 1, "This is the standard bias-of-MLE-variance result: dividing by N-1 instead of N (Bessel's correction) removes the bias, but it is not what falls out of maximizing the likelihood directly."],
+        ["A coin is flipped 3 times and lands heads all 3 times. What is the Bernoulli MLE theta_hat, and what's the catch?", ["theta_hat = 0.5, a conservative estimate", "theta_hat = 1 — an extreme estimate driven entirely by a tiny sample, since MLE has no built-in way to temper the estimate with prior belief", "theta_hat is undefined for small samples", "theta_hat = 3"], 1, "theta_hat = (1+1+1)/3 = 1: MLE takes the data completely at face value. With only 3 flips this is an overconfident conclusion ('this coin never lands tails') — exactly the scenario MAP estimation with a prior is meant to temper."],
+        ["How does MAP estimation relate to MLE?", ["They are unrelated procedures", "MAP maximizes the posterior P(theta|X) which is proportional to P(X|theta)P(theta) via Bayes' rule; it reduces to exactly MLE when the prior P(theta) is uniform (non-informative)", "MAP only applies to continuous parameters", "MLE always outperforms MAP regardless of sample size"], 1, "MAP folds a prior belief about theta into the objective through Bayes' rule; with a flat prior, maximizing the posterior is identical to maximizing the likelihood alone, so the two coincide."],
+        ["Beyond making differentiation easier, why is taking the log-likelihood also a good idea numerically?", ["It's required to make the likelihood integrate to 1", "Multiplying together many probabilities less than 1 can underflow to 0 in floating-point arithmetic; summing their logs avoids that", "It changes which theta is optimal", "It converts discrete data into continuous data"], 1, "With hundreds or thousands of data points, a raw product of small probabilities can vanish to numerical zero; log-likelihood turns that product into a numerically stable sum."],
+        ["The central limit theorem is fundamentally a statement about...", ["Individual data points becoming normally distributed as the sample grows", "The sampling distribution of the sample mean becoming approximately normal as n grows, regardless of the shape of the original population", "Gaussian populations only", "The population variance shrinking toward zero"], 1, "Each individual die roll in the deck's biased-dice example stays exactly as skewed as ever; it's the distribution of repeated sample means, not the raw data, that approaches a bell curve."],
+        ["As sample size n grows, what happens to the variance of the sampling distribution of the mean?", ["It grows without bound", "It stays exactly equal to the population variance", "It shrinks, proportional to sigma^2/n", "It becomes exactly zero for any finite n"], 2, "Using Var(aX) = a^2 Var(X) on an average of n i.i.d. terms gives Var(mean) = sigma^2/n — the CLT's bell curve gets narrower, not just more 'normal-shaped,' as n increases. This scaling isn't stated outright on the slide, but it's implied by the mechanics of averaging."],
+        ["The likelihood L(theta|X) is best understood as...", ["A probability distribution over theta that must integrate to 1 over theta", "A function proportional to P(X|theta), read with the data fixed and theta varying — it is not itself the posterior P(theta|X)", "Identical to the posterior P(theta|X)", "Always identical to the prior P(theta)"], 1, "A frequent mix-up is treating 'high likelihood' as 'high probability that theta is correct.' Turning a likelihood into an actual probability statement about theta requires running it through Bayes' rule to get the posterior."],
+        ["What does setting Sigma = the identity matrix do to the Mahalanobis distance in a multivariate Gaussian?", ["It makes the distance undefined", "It reduces the Mahalanobis distance to ordinary squared Euclidean distance", "It forces every point to have distance zero from the mean", "It makes the covariance matrix singular"], 1, "With Sigma = I, Sigma^-1 = I, so Delta^2 = (x-mu)^T(x-mu) — exactly squared Euclidean distance. The general story of 'rescaling by the covariance so spread-out directions count less' collapses to no rescaling at all when the covariance is isotropic."],
+        ["Naive Bayes relies on features being conditionally independent given the class label. What's the practical risk if that assumption is false?", ["None — the assumption is always exactly true in practice", "If features are actually correlated given the class, the model's classification can still be quite good (it mainly needs correct relative ordering of posteriors), but its predicted probabilities can be poorly calibrated", "The model becomes impossible to train", "It only matters for continuous features"], 1, "Real-world features are rarely perfectly conditionally independent given the class, yet Naive Bayes often classifies reasonably well anyway — the probability *values* it outputs are the part most likely to be off."],
+        ["Why can computing Var(X) via the shortcut formula E[X^2] - E[X]^2 be numerically risky on real data, even though it's algebraically identical to the definition?", ["It never is — both formulas are always equally stable", "When E[X^2] and E[X]^2 are both large and close in value, subtracting them suffers from catastrophic cancellation, amplifying floating-point error", "The formula produces negative variances by design", "It only applies to discrete random variables"], 1, "Subtracting two large, nearly-equal floating-point numbers destroys precision — a well-known numerical pitfall with the 'shortcut' variance formula despite it being mathematically the same quantity as the definition."],
+        ["Why is the i.i.d. assumption specifically what allows the joint likelihood to collapse into a simple product of per-observation terms?", ["It isn't important — products always work regardless of dependence", "Without independence, the joint density only factors via the general chain rule, with each term conditioned on all previous observations (p(x_i | x_1,...,x_{i-1}, theta)); i.i.d. collapses every one of those conditionals down to the same p(x_i | theta)", "I.i.d. is purely a computational convenience with no modeling content", "I.i.d. only matters for continuous random variables"], 1, "Dropping independence still lets you factor a joint via the chain rule, but each factor would need to condition on everything before it — i.i.d. is what makes every factor identical and independent of order, which is what licenses L(theta|X) = product_i P(x_i|theta)."],
+        ["The notes say a Gaussian is fully described by its 'moment parameterization' — just mu and Sigma. Does this generalize to distributions in general?", ["Yes — any distribution is fully described by its mean and variance", "No — this is special to the Gaussian; most distributions need more than their first two moments (or aren't determined by moments at all) to be fully specified", "Only discrete distributions have this property", "It only holds in one dimension"], 1, "The line in the deck is Gaussian-specific. Two very different-looking distributions can share the exact same mean and variance, so 'first two moments only' is a Gaussian shortcut, not a general fact about distributions."],
+      ]},
+    ];
+
+    const letters = ["A", "B", "C", "D"];
+    const escapeHtml = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    const STORAGE_KEY = "pa-mcq-progress-v1";
+    const FILTER_KEY = "pa-mcq-filter-v1";
+
+    function loadProgress() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+      catch (e) { return {}; }
+    }
+    function saveProgress(progress) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+      catch (e) { /* localStorage unavailable — progress just won't persist */ }
+    }
+    function loadFilter() {
+      try { return localStorage.getItem(FILTER_KEY) || "all"; }
+      catch (e) { return "all"; }
+    }
+    function saveFilter(f) {
+      try { localStorage.setItem(FILTER_KEY, f); }
+      catch (e) { /* ignore */ }
+    }
+
+    let progress = loadProgress();
+    let currentFilter = loadFilter();
+
+    let number = 0;
+    const bank = document.getElementById("bank");
+    for (const section of sections) {
+      const wrapper = document.createElement("section");
+      wrapper.className = "topic";
+
+      const heading = document.createElement("h2");
+      heading.textContent = section.title;
+      wrapper.appendChild(heading);
+
+      const list = document.createElement("ol");
+      list.className = "questions";
+      list.start = number + 1;
+
+      for (const [prompt, options, answerIndex, explanation] of section.questions) {
+        number += 1;
+        const n = String(number);
+        const item = document.createElement("li");
+        item.className = "question";
+        item.dataset.n = n;
+        item.innerHTML = `
+          <div class="prompt">${prompt}</div>
+          <ol class="options" type="A">
+            ${options.map(option => `<li>${escapeHtml(option)}</li>`).join("")}
+          </ol>
+          <details>
+            <summary>Show answer</summary>
+            <p class="answer"><strong>${letters[answerIndex]}.</strong> ${escapeHtml(options[answerIndex])}<br>${escapeHtml(explanation)}</p>
+          </details>
+          <div class="track" data-n="${n}">
+            <button class="mark correct" type="button">✓ Got it right</button>
+            <button class="mark wrong" type="button">✗ Got it wrong</button>
+            <span class="status-label"></span>
+          </div>`;
+        list.appendChild(item);
+      }
+      wrapper.appendChild(list);
+      bank.appendChild(wrapper);
+    }
+
+    const totalQuestions = number;
+
+    function updateTrackUI(track) {
+      const n = track.dataset.n;
+      const status = progress[n];
+      track.querySelector(".mark.correct").classList.toggle("active", status === "correct");
+      track.querySelector(".mark.wrong").classList.toggle("active", status === "wrong");
+      const label = track.querySelector(".status-label");
+      label.textContent = status === "correct" ? "Marked correct" : status === "wrong" ? "Marked wrong — review this" : "";
+    }
+
+    function applyFilter() {
+      let anyVisible = 0;
+      bank.querySelectorAll(".topic").forEach(sectionEl => {
+        let visibleInSection = 0;
+        sectionEl.querySelectorAll("li.question").forEach(li => {
+          const status = progress[li.dataset.n];
+          let show = true;
+          if (currentFilter === "wrong") show = status === "wrong";
+          else if (currentFilter === "correct") show = status === "correct";
+          else if (currentFilter === "unanswered") show = !status;
+          li.hidden = !show;
+          if (show) visibleInSection++;
+        });
+        sectionEl.hidden = visibleInSection === 0;
+        anyVisible += visibleInSection;
+      });
+      const emptyState = document.getElementById("emptyState");
+      if (anyVisible === 0) {
+        const messages = {
+          wrong: "Nothing marked wrong yet — nice work, or you haven't graded yourself yet.",
+          correct: "Nothing marked correct yet.",
+          unanswered: "Everything has been marked — nice work.",
+          all: "No questions to show.",
+        };
+        emptyState.textContent = messages[currentFilter] || "No questions to show.";
+        emptyState.hidden = false;
+      } else {
+        emptyState.hidden = true;
+      }
+    }
+
+    function updateCount() {
+      let correct = 0, wrong = 0;
+      for (const n in progress) {
+        if (progress[n] === "correct") correct++;
+        else if (progress[n] === "wrong") wrong++;
+      }
+      const unanswered = totalQuestions - correct - wrong;
+      document.getElementById("count").textContent =
+        `${totalQuestions} questions across ${sections.length} sections · ${correct} correct · ${wrong} wrong · ${unanswered} unanswered`;
+    }
+
+    bank.addEventListener("click", (e) => {
+      const btn = e.target.closest(".mark");
+      if (!btn) return;
+      const track = btn.closest(".track");
+      const n = track.dataset.n;
+      const status = btn.classList.contains("correct") ? "correct" : "wrong";
+      progress[n] = progress[n] === status ? undefined : status;
+      if (progress[n] === undefined) delete progress[n];
+      saveProgress(progress);
+      updateTrackUI(track);
+      applyFilter();
+      updateCount();
+    });
+
+    document.querySelectorAll(".filter").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentFilter = btn.dataset.filter;
+        saveFilter(currentFilter);
+        document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b === btn));
+        applyFilter();
+      });
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      if (!confirm("Clear all saved right/wrong marks for this question bank?")) return;
+      progress = {};
+      saveProgress(progress);
+      bank.querySelectorAll(".track").forEach(updateTrackUI);
+      applyFilter();
+      updateCount();
+    });
+
+    // initial paint
+    bank.querySelectorAll(".track").forEach(updateTrackUI);
+    document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b.dataset.filter === currentFilter));
+    applyFilter();
+    updateCount();
+  </script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Linear Algebra MCQ Bank</title>
+  <style>
+    :root { color-scheme: light dark; --page:#f6f6f3; --card:#fff; --text:#1c1c1a; --muted:#686862; --line:#d8d8d1; --accent:#245c46; --answer:#eef6f1; }
+    @media (prefers-color-scheme: dark) { :root { --page:#171816; --card:#20211f; --text:#ededE8; --muted:#aaa9a1; --line:#3a3b37; --accent:#8ed0ad; --answer:#1b2b23; } }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--text); font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(820px, calc(100% - 32px)); margin:48px auto 80px; }
+    header { margin-bottom:36px; }
+    h1 { margin:0 0 8px; font-size:clamp(1.8rem,5vw,2.7rem); line-height:1.12; letter-spacing:-.03em; }
+    h2 { margin:42px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line); font-size:1.18rem; }
+    p { margin:0; }
+    .intro { color:var(--muted); max-width:68ch; }
+    .count { margin-top:10px; font-size:.9rem; color:var(--muted); }
+    ol.questions { margin:0; padding-left:2rem; }
+    li.question { padding:18px 18px 18px 8px; border-bottom:1px solid var(--line); }
+    .prompt { margin-bottom:10px; font-weight:620; }
+    ol.options { margin:0 0 12px; padding-left:1.7rem; }
+    ol.options li { padding:2px 0; }
+    code { font-family:"SFMono-Regular",Consolas,monospace; font-size:.94em; }
+    details { background:var(--answer); border:1px solid var(--line); border-radius:6px; padding:8px 11px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+    .answer { margin-top:8px; }
+    .answer strong { color:var(--accent); }
+    footer { margin-top:44px; color:var(--muted); font-size:.86rem; }
+    @media print { :root { color-scheme:light; } body { background:#fff; } main { width:100%; margin:0; } details { break-inside:avoid; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Linear Algebra MCQ Bank</h1>
+      <p class="intro">Practice questions based on the CS 4641/7641 linear algebra practice quiz and lecture notes. Every item is multiple choice. Open the answer only when you are ready to check your work.</p>
+      <p class="count" id="count"></p>
+    </header>
+    <div id="bank"></div>
+    <footer>Source coverage: notation, norms, special matrices, products, rank, inverses, trace, determinants, eigenvalues, SVD, covariance, PCA, and the extra preparation topics named in the notes.</footer>
+  </main>
+  <script>
+    const sections = [
+      { title: "Basics and notation", questions: [
+        ["What does <code>A in R^(n x d)</code> mean?", ["A has d rows and n columns", "A has n rows and d columns", "A contains only positive numbers", "A must be square"], 1, "The first dimension gives the number of rows; the second gives the number of columns."],
+        ["Under the course's machine-learning convention, what does one row of a data matrix represent?", ["One feature", "One eigenvector", "One data point", "One singular value"], 2, "Rows are instances or data points, while columns are features."],
+        ["If <code>A</code> is <code>3 x 5</code>, what is the shape of <code>A^T</code>?", ["3 x 5", "5 x 3", "5 x 5", "3 x 3"], 1, "Transposition swaps rows and columns."],
+        ["Which transpose identity is correct?", ["(AB)^T = A^T B^T", "(AB)^T = B^T A^T", "(AB)^T = AB", "(AB)^T = B A"], 1, "The order reverses when a product is transposed."],
+        ["Which condition defines a symmetric matrix?", ["A = -A^T", "A^2 = A", "A = A^T", "A^-1 = A"], 2, "A symmetric matrix equals its transpose."],
+        ["Which condition defines a skew-symmetric matrix?", ["A = -A^T", "A = A^T", "A^T A = I", "det(A) = 1"], 0, "A skew-symmetric matrix is the negative of its transpose."],
+        ["What must be true of every diagonal entry of a real skew-symmetric matrix?", ["It equals 1", "It is positive", "It is zero", "It equals the determinant"], 2, "From a_ii = -a_ii, we get a_ii = 0."],
+        ["Which is the symmetric part of a square matrix <code>A</code>?", ["(A - A^T)/2", "(A + A^T)/2", "A^T A", "AA^T"], 1, "Its transpose is itself, so it is symmetric."],
+        ["Which is the skew-symmetric part of <code>A</code>?", ["(A - A^T)/2", "(A + A^T)/2", "A^-1", "A/2"], 0, "Its transpose equals its negative."],
+        ["A matrix has 200 rows and 12 columns. How is it described?", ["Square", "Wide", "Tall", "Diagonal"], 2, "It has more rows than columns."],
+        ["Which statement about the identity matrix <code>I</code> is true?", ["AI = IA = A", "AI = 0", "I has zeros on its diagonal", "I exists only in dimension 2"], 0, "Multiplying by the identity leaves a compatible matrix unchanged."],
+        ["Which statement defines a diagonal matrix?", ["Every entry is equal", "All off-diagonal entries are zero", "All diagonal entries are zero", "Its determinant must be zero"], 1, "Only entries on the main diagonal may be nonzero."],
+        ["If <code>D = diag(2,-4,5)</code>, what is <code>D^T</code>?", ["diag(-2,4,-5)", "diag(1/2,-1/4,1/5)", "D", "-D"], 2, "Every diagonal matrix is symmetric."],
+        ["Which matrix must be square?", ["A data matrix", "A transpose", "A symmetric matrix", "A column vector"], 2, "Symmetry compares a matrix with its transpose, which requires matching dimensions."],
+        ["What is a basis?", ["Any set of vectors", "A linearly independent set that spans the space", "A set containing only unit vectors", "The rows of every matrix"], 1, "A basis both spans the space and contains no redundant vector."],
+      ]},
+      { title: "Norms and vector geometry", questions: [
+        ["Which property is not required of a norm?", ["Non-negativity", "Triangle inequality", "Homogeneity", "Linearity"], 3, "A norm need not satisfy f(x+y) = f(x) + f(y)."],
+        ["What is the <code>l1</code> norm of <code>[1,2,-3]</code>?", ["3", "6", "sqrt(14)", "14"], 1, "Add absolute values: 1 + 2 + 3 = 6."],
+        ["What is the squared <code>l2</code> norm of <code>[1,2,-3]</code>?", ["6", "sqrt(14)", "14", "9"], 2, "The squared l2 norm is 1^2 + 2^2 + (-3)^2 = 14."],
+        ["What is the <code>l-infinity</code> norm of <code>[1,2,-3]</code>?", ["1", "2", "3", "6"], 2, "The maximum absolute entry is 3."],
+        ["For which values of <code>p</code> does the standard <code>lp</code> formula define a norm?", ["p > 0", "p >= 1", "p <= 1", "Only p = 2"], 1, "The lp family is a norm for p at least 1."],
+        ["What is the Frobenius norm of <code>[[1,2],[2,1]]</code>?", ["3", "sqrt(6)", "sqrt(10)", "10"], 2, "Square and sum all entries: 1 + 4 + 4 + 1 = 10, then take the square root."],
+        ["Which trace formula equals the Frobenius norm of <code>A</code>?", ["tr(A)", "sqrt(tr(A^T A))", "tr(A)^2", "sqrt(det(A))"], 1, "The diagonal of A^T A collects columnwise sums of squares."],
+        ["If <code>||x|| = 4</code>, what is <code>||-3x||</code>?", ["-12", "1", "7", "12"], 3, "Homogeneity uses the absolute scale: |-3| times 4 equals 12."],
+        ["What does definiteness say about a norm?", ["Only the zero vector has norm zero", "Every vector has norm one", "A norm is always differentiable", "A norm preserves angles"], 0, "A norm equals zero if and only if the vector is zero."],
+        ["Which inequality must every norm satisfy?", ["||x+y|| >= ||x||+||y||", "||x+y|| <= ||x||+||y||", "||x-y|| = ||x||-||y||", "||x|| <= 0"], 1, "This is the triangle inequality."],
+        ["Which vector is the normalized version of <code>[3,4]</code>?", ["[3/4,1]", "[0.6,0.8]", "[3,4]", "[9,16]"], 1, "The original norm is 5, so divide each entry by 5."],
+        ["When are two vectors orthogonal?", ["Their norms are equal", "Their sum is zero", "Their dot product is zero", "They have the same direction"], 2, "Zero dot product is the algebraic test for orthogonality."],
+        ["Which statement about nonzero orthogonal vectors is true?", ["They are always linearly dependent", "They are linearly independent", "They must be identical", "They must have unit norm"], 1, "No nonzero orthogonal vector can be a scalar multiple of another."],
+        ["If <code>Q</code> is a real orthogonal matrix, which identity is correct?", ["Q^-1 = Q", "Q^-1 = Q^T", "Q^-1 = -Q", "Q^T = 0"], 1, "Q^T Q = I, so the transpose is the inverse."],
+        ["What does an orthogonal matrix preserve?", ["Only determinants", "Euclidean lengths and angles", "Every matrix entry", "The l1 norm only"], 1, "Orthogonal transformations are rotations or reflections, so they preserve Euclidean geometry."],
+        ["What is the vector projection of <code>x</code> onto nonzero <code>y</code>?", ["(x.y)y", "((x.y)/(y.y))y", "x/(y.y)", "(y.x)x"], 1, "Divide the dot product by the squared length of y, then multiply by y."],
+      ]},
+      { title: "Products, independence, and rank", questions: [
+        ["Which statement about real inner products is false?", ["If x is orthogonal to y, then x.y=0", "If x.y=0, then x and y must be linearly dependent", "The standard inner product is bilinear", "The standard inner product is symmetric"], 1, "A zero inner product means orthogonality. Nonzero orthogonal vectors are linearly independent, not dependent."],
+        ["If <code>A</code> is <code>4 x 3</code> and <code>B</code> is <code>3 x 2</code>, what is the shape of <code>AB</code>?", ["3 x 3", "4 x 2", "2 x 4", "The product is undefined"], 1, "The inner dimensions match, and the outer dimensions are 4 by 2."],
+        ["Which product is undefined when <code>A</code> is <code>4 x 3</code> and <code>B</code> is <code>3 x 2</code>?", ["AB", "A^T A", "BB^T", "BA"], 3, "BA would multiply a 3 x 2 matrix by a 4 x 3 matrix, so the inner dimensions 2 and 4 do not match."],
+        ["What is the dot product of <code>[1,2]</code> and <code>[-3,4]</code>?", ["5", "-5", "11", "[-3,8]"], 0, "1(-3) + 2(4) = 5."],
+        ["For column vectors <code>x in R^d</code> and <code>y in R^n</code>, what is the shape of <code>xy^T</code>?", ["A scalar", "d x n", "n x d", "d x d only"], 1, "A d x 1 column times a 1 x n row gives a d x n matrix."],
+        ["Which expression is an inner product of real column vectors?", ["xy^T", "x^T y", "x+y^T", "x^T+y"], 1, "A row vector times a compatible column vector produces a scalar."],
+        ["Which expression is an outer product?", ["x^T y", "xy^T", "x+y", "||x||"], 1, "A column vector times a row vector produces a matrix."],
+        ["If <code>x=[1,2]^T</code> and <code>y=[3,4]^T</code>, what is <code>xy^T</code>?", ["11", "[[3,4],[6,8]]", "[[3,6],[4,8]]", "[3,8]^T"], 1, "Each entry is x_i y_j."],
+        ["Which statement about matrix multiplication is generally true?", ["AB = BA", "AB and BA always have the same shape", "AB need not equal BA", "AB is defined for every pair of matrices"], 2, "Matrix multiplication is not commutative."],
+        ["If <code>x.y > 0</code> for nonzero vectors, what can be said about their angle?", ["It is acute", "It is exactly 90 degrees", "It is obtuse", "It is undefined"], 0, "A positive cosine gives an angle less than 90 degrees."],
+        ["Which identity connects a dot product to an angle?", ["x.y = ||x||+||y||", "x.y = ||x||||y||cos(theta)", "x.y = det(x+y)", "x.y = ||x-y||"], 1, "This is the geometric form of the dot product."],
+        ["What is <code>x.x</code>?", ["||x||_1", "||x||_2", "||x||_2^2", "0 for every x"], 2, "A vector dotted with itself is the sum of its squared entries."],
+        ["When is a set of vectors linearly dependent?", ["Only when every vector is zero", "When a nontrivial linear combination equals zero", "When all vectors have norm one", "When every pair has positive dot product"], 1, "Nontrivial means at least one coefficient is nonzero."],
+        ["Which statement defines the span of a set of vectors?", ["The set of their norms", "The set of all their linear combinations", "The set of vectors orthogonal to them", "The number of vectors in the set"], 1, "The span contains everything reachable by linear combinations."],
+        ["Which statement about row rank and column rank is true?", ["Row rank is always larger", "Column rank is always larger", "They are always equal", "They are equal only for square matrices"], 2, "Every matrix has equal row rank and column rank."],
+        ["What is the maximum rank of an <code>n x d</code> matrix?", ["n+d", "nd", "max(n,d)", "min(n,d)"], 3, "A matrix cannot have more independent rows than rows or more independent columns than columns."],
+        ["What is the rank of <code>[[1,2,3],[2,4,6]]</code>?", ["0", "1", "2", "3"], 1, "The second row is twice the first, and every column is a multiple of the first column."],
+        ["Which <code>3 x 3</code> matrix is full rank?", ["[[1,2,3],[2,4,6],[3,6,9]]", "[[1,0,0],[0,1,0],[0,0,1]]", "[[1,1,1],[1,1,1],[1,1,1]]", "The zero matrix"], 1, "The identity has three independent rows and columns."],
+        ["What is the rank of a nonzero outer product <code>xy^T</code>?", ["0", "1", "2", "It must be full rank"], 1, "Every column is a scalar multiple of x, so the column space is one-dimensional."],
+        ["If a square matrix has rank zero, which matrix is it?", ["The identity", "A diagonal matrix with nonzero entries", "The zero matrix", "Any skew-symmetric matrix"], 2, "Rank zero means every row and column is zero."],
+        ["The columns <code>[1,2,3]^T</code> and <code>[4,5,6]^T</code> satisfy the entrywise relation <code>x2=x1+3</code>. Why does this not prove linear dependence?", ["Linear combinations do not permit adding a constant to every entry", "The vectors have different lengths", "Only rows can be dependent", "Three-dimensional vectors are always independent"], 0, "Dependence requires scalar multiples or linear combinations of whole vectors, not an affine shift."],
+        ["What is the null space of <code>A</code>?", ["All rows of A", "All x such that Ax=0", "All eigenvalues of A", "All x such that Ax=x"], 1, "The null space contains inputs that A maps to the zero vector."],
+      ]},
+      { title: "Inverses, trace, and determinant", questions: [
+        ["Which equations define the inverse of a square matrix <code>A</code>?", ["A^-1+A=I", "A^-1A=AA^-1=I", "A^-1A=0", "A^-1=A^T for every A"], 1, "A true inverse works from both sides."],
+        ["Which statement is equivalent to invertibility for a square matrix?", ["det(A)=0", "rank(A) is less than its dimension", "det(A) is nonzero", "A is skew-symmetric"], 2, "A square matrix is invertible exactly when its determinant is nonzero."],
+        ["If <code>D=diag(2,-4,5)</code>, what is <code>D^-1</code>?", ["diag(-2,4,-5)", "diag(1/2,-1/4,1/5)", "diag(4,16,25)", "D has no inverse"], 1, "Invert each nonzero diagonal entry."],
+        ["When is <code>(A^T A)^-1 A^T</code> the Moore-Penrose pseudo-inverse of <code>A</code>?", ["When A has full column rank", "Only when A is square and singular", "When A is the zero matrix", "Whenever A has more columns than rows"], 0, "Full column rank makes A^T A invertible."],
+        ["If <code>A</code> is <code>n x d</code>, what is the shape of <code>A+</code>?", ["n x d", "d x n", "n x n", "d x d"], 1, "The pseudo-inverse reverses the dimensions."],
+        ["For a tall full-column-rank matrix, which identity holds?", ["A+A=I_d", "AA+=I_n in every case", "A+=A^T A", "A+A=0"], 0, "The pseudo-inverse is a left inverse in this setting."],
+        ["What is <code>tr([[2,7],[1,-3]])</code>?", ["7", "-1", "3", "-21"], 1, "The trace is the diagonal sum: 2 + (-3) = -1."],
+        ["Which trace identity is correct?", ["tr(A)=det(A)", "tr(A)=tr(A^T)", "tr(AB)=tr(A)tr(B)", "tr(A+B)=tr(A)-tr(B)"], 1, "Transposition does not change diagonal entries."],
+        ["Which rearrangement is guaranteed by the cyclic property?", ["tr(ABC)=tr(ACB)", "tr(ABC)=tr(BCA)", "tr(ABC)=tr(CBA)", "ABC=BCA"], 1, "Factors may rotate cyclically but cannot be reordered arbitrarily."],
+        ["What is the determinant of <code>[[3,2],[5,4]]</code>?", ["2", "22", "-2", "7"], 0, "For a 2 x 2 matrix, det = ad-bc = 12-10 = 2."],
+        ["Which determinant identity is true?", ["det(AB)=det(A)+det(B)", "det(AB)=det(A)det(B)", "det(A^T)=-det(A)", "det(A^-1)=det(A)"], 1, "The determinant is multiplicative."],
+        ["If <code>det(A)=-4</code>, what is <code>det(A^-1)</code>?", ["4", "-1/4", "1/4", "-4"], 1, "The inverse determinant is the reciprocal, including the sign."],
+        ["What does <code>|det(A)|</code> represent geometrically?", ["The number of rows", "The volume-scaling factor", "The trace", "The number of eigenvectors"], 1, "The magnitude tells how A scales area or volume."],
+        ["If two columns of a square matrix are collinear, what must be true?", ["Its determinant is zero", "Its determinant is one", "It is orthogonal", "It has full rank"], 0, "Collinear columns collapse volume and make the matrix singular."],
+        ["What is a minor <code>M_ij</code>?", ["The trace after deleting an entry", "The determinant after deleting row i and column j", "The inverse of A_ij", "The sum of row i and column j"], 1, "A minor is the determinant of the remaining submatrix."],
+        ["What sign multiplies the minor in a cofactor?", ["(-1)^(i+j)", "(-1)^(ij)", "i+j", "Always +1"], 0, "Cofactor signs alternate according to (-1)^(i+j)."],
+      ]},
+      { title: "Eigenvalues and eigenvectors", questions: [
+        ["Which equation defines an eigenpair of <code>A</code>?", ["Ax=x+lambda", "Ax=lambda x with x nonzero", "A+lambda=x", "A^T x=0 for every x"], 1, "An eigenvector keeps its direction and is scaled by its eigenvalue."],
+        ["Why is the zero vector excluded from the definition of an eigenvector?", ["It has no entries", "It satisfies Ax=lambda x for every lambda and gives no direction", "It always has eigenvalue one", "It cannot be multiplied by a matrix"], 1, "Including it would make every scalar appear to be an eigenvalue."],
+        ["How are eigenvalues found from a square matrix <code>A</code>?", ["Solve det(A-lambda I)=0", "Solve tr(A-lambda I)=0", "Set Ax=0 only", "Add every entry of A"], 0, "A nonzero null-space solution exists when A-lambda I is singular."],
+        ["For a <code>d x d</code> matrix, what is the degree of its characteristic polynomial?", ["1", "d", "d^2", "It has no fixed degree"], 1, "det(A-lambda I) has degree d."],
+        ["What are the eigenvalues of <code>diag(4,9)</code>?", ["2 and 3", "4 and 9", "13 and 36", "They cannot be determined"], 1, "The eigenvalues of a diagonal matrix are its diagonal entries."],
+        ["For <code>A=diag(4,9)</code>, which eigenvectors may be used?", ["The standard basis vectors", "Only [1,1]^T", "Only the zero vector", "No real vectors"], 0, "A scales each coordinate axis separately."],
+        ["The practice matrix <code>[[1,2],[3,-4]]</code> has which eigenvalues?", ["-5 and 2", "-4 and 1", "1 and 2", "-6 and 3"], 0, "Its characteristic equation is lambda^2+3lambda-10=0, which factors into (lambda+5)(lambda-2)."],
+        ["Which vector is an eigenvector of <code>[[1,2],[3,-4]]</code> for <code>lambda=-5</code>?", ["[1,-3]^T", "[2,1]^T", "[1,1]^T", "[0,0]^T"], 0, "Multiplication gives [-5,15]^T, which is -5 times [1,-3]^T."],
+        ["Which vector is an eigenvector of <code>[[1,2],[3,-4]]</code> for <code>lambda=2</code>?", ["[1,-3]^T", "[2,1]^T", "[1,1]^T", "[0,0]^T"], 1, "Multiplication gives [4,2]^T, which is 2 times [2,1]^T."],
+        ["If <code>x</code> is an eigenvector, which vector is also an eigenvector for the same eigenvalue?", ["Any nonzero scalar multiple of x", "Only x itself", "x plus any vector", "The zero vector"], 0, "Eigenvectors are directions, so nonzero rescaling does not change the eigenvalue equation."],
+        ["Which matrix can have repeated eigenvalues?", ["No matrix", "Only singular matrices", "The identity matrix", "Only non-square matrices"], 2, "The d x d identity has eigenvalue 1 repeated d times."],
+        ["Which statement about eigenvectors of a real symmetric matrix is correct?", ["They can be chosen orthonormal", "They can never be orthogonal", "They must all share one eigenvalue", "They may only contain positive entries"], 0, "The spectral theorem gives an orthonormal eigenbasis for a real symmetric matrix."],
+        ["Does linear independence imply orthogonality?", ["Yes, always", "No", "Only for two-dimensional vectors", "Only for unit vectors"], 1, "Independent vectors need not meet at a right angle."],
+        ["Which implication is valid for nonzero vectors?", ["Linear independence implies orthogonality", "Orthogonality implies linear independence", "Equal norms imply orthogonality", "Positive dot product implies dependence"], 1, "A nontrivial combination of mutually orthogonal nonzero vectors cannot equal zero."],
+        ["In <code>AX=X Lambda</code>, what do the columns of <code>X</code> contain?", ["Rows of A", "Eigenvectors of A", "Singular values", "Only standard basis vectors"], 1, "Each column satisfies Ax_i=lambda_i x_i."],
+        ["When does <code>A=X Lambda X^-1</code> exist?", ["Whenever A is rectangular", "When A has a full basis of linearly independent eigenvectors", "Only when det(A)=0", "Only when every eigenvalue is zero"], 1, "That condition means A is diagonalizable."],
+        ["What is the trace of a square matrix in terms of its eigenvalues, counted with multiplicity?", ["Their product", "Their sum", "Their maximum", "Their squared sum"], 1, "The trace equals the sum of the eigenvalues."],
+        ["What is the determinant of a square matrix in terms of its eigenvalues, counted with multiplicity?", ["Their product", "Their sum", "Their minimum", "Their average"], 0, "The determinant equals the product of the eigenvalues."],
+        ["If an invertible matrix has eigenvalue <code>lambda</code>, what is the corresponding eigenvalue of its inverse?", ["-lambda", "lambda^2", "1/lambda", "0"], 2, "Apply A^-1 to Ax=lambda x to obtain A^-1x=(1/lambda)x."],
+        ["Which statement follows if a square matrix has eigenvalue zero?", ["It is singular", "It is orthogonal", "Its trace is zero", "Every eigenvalue is zero"], 0, "A zero eigenvalue makes the determinant, the product of eigenvalues, equal zero."],
+      ]},
+      { title: "SVD, covariance, PCA, and related prep", questions: [
+        ["Which statement is true about <code>X=U Sigma V^T</code>?", ["U and V are diagonal", "The diagonal entries of Sigma are singular values", "Sigma may contain negative singular values", "SVD exists only for square X"], 1, "Sigma contains nonnegative singular values."],
+        ["For a real <code>n x d</code> matrix in the full SVD, what are the shapes?", ["U is n x n, Sigma is n x d, V is d x d", "U is n x d, Sigma is d x n, V is n x n", "All three are n x d", "All three are square d x d"], 0, "The full factors multiply as (n x n)(n x d)(d x d)."],
+        ["What property do the columns of <code>U</code> and <code>V</code> have in a real SVD?", ["They are all identical", "They are orthonormal", "They are all eigenvalues", "They are nonnegative"], 1, "U and V are orthogonal matrices in the real case."],
+        ["For which matrices does SVD exist?", ["Only symmetric matrices", "Only square matrices", "Only full-rank matrices", "Every matrix"], 3, "SVD works for square, rectangular, singular, and full-rank matrices."],
+        ["What does <code>numpy.linalg.svd(X)</code> return as its third output?", ["V", "V^T", "X^-1", "X^T X"], 1, "NumPy returns U, the singular values, and V transpose."],
+        ["The right singular vectors of <code>A</code> are eigenvectors of which matrix?", ["AA^T", "A^T A", "A+A^T", "A-A^T"], 1, "The columns of V diagonalize A^T A."],
+        ["The left singular vectors of <code>A</code> are eigenvectors of which matrix?", ["AA^T", "A^T A", "A^-1", "det(A)"], 0, "The columns of U diagonalize AA^T."],
+        ["How do singular values relate to the eigenvalues of <code>A^T A</code>?", ["sigma_i=lambda_i", "sigma_i^2=lambda_i", "sigma_i=-lambda_i", "sigma_i=1/lambda_i"], 1, "The squared singular values are the eigenvalues of A^T A."],
+        ["Can a singular value be negative?", ["Yes, whenever an eigenvalue is negative", "Yes, for a singular matrix", "No", "Only in a complex matrix"], 2, "Singular values are defined to be nonnegative."],
+        ["Which statement correctly compares eigenvalues and singular values?", ["They are always identical", "Singular values exist only for symmetric matrices", "Singular values are nonnegative, while eigenvalues may be negative or complex", "Eigenvalues exist for every rectangular matrix"], 2, "The two concepts coincide only in special cases."],
+        ["What does the geometric SVD sequence do?", ["Scale, translate, invert", "Rotate or reflect, scale, then rotate or reflect", "Differentiate, scale, integrate", "Transpose three times"], 1, "V^T changes the input basis, Sigma scales coordinate directions, and U changes the output basis."],
+        ["What is a centered data matrix?", ["A matrix with determinant one", "A matrix whose feature means have been subtracted", "A square data matrix", "A matrix with unit-length rows"], 1, "Centering makes each feature column have mean zero."],
+        ["Using the convention in the lecture, how is the covariance matrix formed from centered <code>X</code>?", ["XX^T/n", "X^T X/n", "X+X^T", "X^-1/n"], 1, "With observations in rows, X^T X/n is d x d and contains feature covariances."],
+        ["If <code>X=U Sigma V^T</code> and <code>C=X^T X/n</code>, what is <code>C</code>?", ["U Sigma U^T", "V(Sigma^2/n)V^T", "Sigma V^T/n", "UU^T/n"], 1, "Substitution cancels U^T U to the identity."],
+        ["How do the covariance eigenvalues relate to singular values of centered <code>X</code>?", ["lambda_i=sigma_i/n", "lambda_i=sigma_i^2/n", "lambda_i=n/sigma_i", "lambda_i=-sigma_i"], 1, "The covariance eigendecomposition is V(Sigma^2/n)V^T."],
+        ["Which SVD factor contains the eigenvectors of <code>C=X^T X/n</code>?", ["U", "Sigma", "V", "X^-1"], 2, "The columns of V are the covariance eigenvectors."],
+        ["In PCA, which directions are retained first?", ["Covariance eigenvectors with the smallest eigenvalues", "Covariance eigenvectors with the largest eigenvalues", "Rows with the largest norms", "Only standard basis directions"], 1, "The largest eigenvalues correspond to directions of greatest variance."],
+        ["Why can PCA be computed from the SVD of centered data without forming the covariance matrix?", ["U is always the covariance matrix", "V gives covariance eigenvectors and sigma_i^2/n gives covariance eigenvalues", "Sigma equals the centered data", "SVD removes the need to center data"], 1, "The SVD already contains the eigensystem needed by PCA."],
+        ["Which statement describes truncated SVD?", ["It keeps only the largest k singular values and matching vectors", "It replaces every singular value with zero", "It is always the same as full SVD", "It keeps only negative singular values"], 0, "Truncation gives a lower-rank approximation using the strongest singular directions."],
+        ["What is the rank of a matrix in terms of its singular values?", ["The number of positive or nonzero singular values", "The sum of singular values", "The largest singular value", "The number of negative singular values"], 0, "Each nonzero singular value contributes one independent direction."],
+        ["Which statement about a covariance matrix is true?", ["It must be skew-symmetric", "It is symmetric and positive semidefinite", "It always has determinant one", "It may have negative diagonal variances"], 1, "A covariance matrix is symmetric, and x^T Cx cannot be negative."],
+        ["How can positive semidefiniteness of a real symmetric matrix be checked?", ["Every entry must be positive", "All eigenvalues must be nonnegative", "Its trace must be one", "It must be invertible"], 1, "For a real symmetric matrix, PSD is equivalent to nonnegative eigenvalues."],
+        ["Which condition defines a positive semidefinite matrix <code>A</code>?", ["x^T A x >= 0 for every x", "Ax=0 for every x", "det(A)<0", "Every entry of A is positive"], 0, "PSD concerns the quadratic form, not the signs of individual entries."],
+        ["What is covariance?", ["A normalized measure restricted to [-1,1]", "A measure of how two centered variables vary together", "The Euclidean distance between variables", "The rank of a data matrix"], 1, "Its sign records whether deviations from the means tend to have the same or opposite signs."],
+        ["What is correlation?", ["An unscaled sum of entries", "A normalized measure of linear association", "The determinant of covariance", "A matrix inverse"], 1, "Correlation divides covariance by the variables' standard deviations."],
+        ["When can zero covariance be viewed as orthogonality?", ["When the centered observations are treated as vectors under the usual dot product", "For any two raw variables without centering", "Only when both variables are constant", "Never"], 0, "For centered data vectors, covariance is a scaled dot product, so zero covariance corresponds to a zero dot product."],
+        ["What is the derivative of <code>x^T A x</code> with respect to <code>x</code>?", ["Ax", "(A+A^T)x", "A^T A", "2x for every A"], 1, "The general gradient is (A+A^T)x. It becomes 2Ax when A is symmetric."],
+        ["What is the gradient of <code>||Ax-b||_2^2</code> with respect to <code>x</code>?", ["2A^T(Ax-b)", "2(Ax-b)", "A^-1b", "A^T A"], 0, "Apply the chain rule to the squared residual norm."],
+        ["What does a valid kernel produce for a finite set of inputs?", ["A skew-symmetric matrix", "A positive semidefinite Gram matrix", "A matrix with negative diagonal entries", "An inverse for every data matrix"], 1, "Kernel values act like pairwise inner products, producing a PSD Gram matrix."],
+      ]},
+    ];
+
+    const letters = ["A", "B", "C", "D"];
+    const escapeHtml = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    let number = 0;
+    const bank = document.getElementById("bank");
+    for (const section of sections) {
+      const heading = document.createElement("h2");
+      heading.textContent = section.title;
+      bank.appendChild(heading);
+
+      const list = document.createElement("ol");
+      list.className = "questions";
+      list.start = number + 1;
+
+      for (const [prompt, options, answerIndex, explanation] of section.questions) {
+        number += 1;
+        const item = document.createElement("li");
+        item.className = "question";
+        item.innerHTML = `
+          <div class="prompt">${prompt}</div>
+          <ol class="options" type="A">
+            ${options.map(option => `<li>${escapeHtml(option)}</li>`).join("")}
+          </ol>
+          <details>
+            <summary>Show answer</summary>
+            <p class="answer"><strong>${letters[answerIndex]}.</strong> ${escapeHtml(options[answerIndex])}<br>${escapeHtml(explanation)}</p>
+          </details>`;
+        list.appendChild(item);
+      }
+      bank.appendChild(list);
+    }
+    document.getElementById("count").textContent = `${number} questions across ${sections.length} sections`;
+  </script>
+</body>
+</html>

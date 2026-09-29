@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Optimization MCQ Bank</title>
+  <style>
+    :root { color-scheme: light dark; --page:#f6f6f3; --card:#fff; --text:#1c1c1a; --muted:#686862; --line:#d8d8d1; --accent:#245c46; --answer:#eef6f1; --correct:#2f8f5b; --wrong:#c1483c; }
+    @media (prefers-color-scheme: dark) { :root { --page:#171816; --card:#20211f; --text:#ededE8; --muted:#aaa9a1; --line:#3a3b37; --accent:#8ed0ad; --answer:#1b2b23; --correct:#3fae74; --wrong:#e06a5c; } }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--text); font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(820px, calc(100% - 32px)); margin:48px auto 80px; }
+    header { margin-bottom:24px; }
+    h1 { margin:0 0 8px; font-size:clamp(1.8rem,5vw,2.7rem); line-height:1.12; letter-spacing:-.03em; }
+    h2 { margin:42px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line); font-size:1.18rem; }
+    p { margin:0; }
+    .intro { color:var(--muted); max-width:68ch; }
+    .count { margin-top:10px; font-size:.9rem; color:var(--muted); }
+    .controls { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 0; margin-bottom:8px; background:var(--page); border-bottom:1px solid var(--line); }
+    .controls .label { font-size:.85rem; color:var(--muted); margin-right:2px; }
+    .filter { cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; padding:6px 14px; font-size:.85rem; font-weight:600; }
+    .filter.active { background:var(--accent); border-color:var(--accent); color:var(--page); }
+    .reset { margin-left:auto; cursor:pointer; border:1px solid var(--line); background:transparent; color:var(--muted); border-radius:6px; padding:6px 10px; font-size:.8rem; }
+    .reset:hover { color:var(--text); border-color:var(--text); }
+    .empty-state { padding:28px 8px; color:var(--muted); font-style:italic; }
+    ol.questions { margin:0; padding-left:2rem; }
+    li.question { padding:18px 18px 18px 8px; border-bottom:1px solid var(--line); }
+    .prompt { margin-bottom:10px; font-weight:620; }
+    ol.options { margin:0 0 12px; padding-left:1.7rem; }
+    ol.options li { padding:2px 0; }
+    code { font-family:"SFMono-Regular",Consolas,monospace; font-size:.94em; }
+    details { background:var(--answer); border:1px solid var(--line); border-radius:6px; padding:8px 11px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+    .answer { margin-top:8px; }
+    .answer strong { color:var(--accent); }
+    .track { margin-top:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .mark { cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:6px; padding:6px 10px; font-size:.85rem; font-weight:600; }
+    .mark.correct.active { background:var(--correct); border-color:var(--correct); color:#fff; }
+    .mark.wrong.active { background:var(--wrong); border-color:var(--wrong); color:#fff; }
+    .status-label { font-size:.8rem; color:var(--muted); }
+    footer { margin-top:44px; color:var(--muted); font-size:.86rem; }
+    @media print { :root { color-scheme:light; } body { background:#fff; } main { width:100%; margin:0; } details { break-inside:avoid; } .controls { position:static; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Optimization MCQ Bank</h1>
+      <p class="intro">Practice questions based on the CS 4641/7641 optimization annotated notes — almost all of it whiteboard work, since only six pages of the deck are typed slides. Weighted toward the worked examples he did by hand (the M/S study-vs-sleep problem, KKT active/inactive cases, the primal/dual derivation, one gradient-descent step) and the traps between them. Every item is multiple choice. Open the answer only when you are ready to check your work.</p>
+      <p class="count" id="count"></p>
+    </header>
+    <div class="controls">
+      <span class="label">Show:</span>
+      <button class="filter active" data-filter="all" type="button">All</button>
+      <button class="filter" data-filter="wrong" type="button">Wrong only</button>
+      <button class="filter" data-filter="unanswered" type="button">Unanswered</button>
+      <button class="filter" data-filter="correct" type="button">Correct only</button>
+      <button class="reset" id="reset" type="button">Reset progress</button>
+    </div>
+    <p class="empty-state" id="emptyState" hidden></p>
+    <div id="bank"></div>
+    <footer>Source coverage: maximum likelihood to negative average log-likelihood to cross entropy, CE = H(P) + KL, Jensen and the KL ≥ 0 proof, label vs one-hot encoding and softmax, why cross entropy over the dot product, the optimization taxonomy, convexity and the Hessian, Lagrange multipliers, KKT and active/inactive constraints, primal and dual with weak/strong duality, gradient descent, derivative rules, and the convolution page. SGD and momentum are not in the annotated notes, so they are not here. Right/wrong marks are saved in this browser only (localStorage) — they don't sync across devices.</footer>
+  </main>
+  <script>
+    const sections = [
+      { title: "Maximum likelihood, NLL, and cross entropy", questions: [
+        ["The professor opens the taxonomy page with 'Optimization = ___'. What fills the blank?", ["Training", "Inference", "Evaluation", "Feature engineering"], 0, "Optimization = training → objective function. Fitting a model is minimizing (or maximizing) an objective."],
+        ["For N i.i.d. samples, which expression is the likelihood <code>L(θ|X)</code>?", ["sum_i f(x^(i) | a, b)", "prod_i f(x^(i) | a, b)", "max_i f(x^(i) | a, b)", "(1/N) sum_i f(x^(i) | a, b)"], 1, "Independent samples multiply. Taking the log is what turns the product into a sum."],
+        ["Why can you maximize the log-likelihood instead of the likelihood and get the same parameters?", ["Because log is concave", "Because the likelihood is always below 1", "Because log is monotone increasing, so it preserves the argmax", "Because log removes the dependence on the parameters"], 2, "Any strictly increasing transform keeps the location of the maximum. Concavity is true of log but irrelevant here."],
+        ["Maximizing <code>sum_i log f(x^(i)|a,b)</code> is equivalent to which minimization?", ["min sum_i log f(x^(i)|a,b)", "min sum_i f(x^(i)|a,b)", "max -sum_i log f(x^(i)|a,b)", "min -sum_i log f(x^(i)|a,b)"], 3, "Negating flips max into min. That minus sign is the one that ends up in the cross-entropy formula."],
+        ["What does the professor name the quantity <code>-(1/N) sum_i log f(x^(i)|a,b)</code>?", ["Negative average log-likelihood", "Entropy of the data", "KL divergence", "The dual function"], 0, "He circles the 1/N and writes 'Negative avg loglikelihood', then sets it equal to CE."],
+        ["Why is it harmless to multiply the negative log-likelihood by <code>1/N</code>?", ["It changes the minimizer only for small N", "Multiplying by a positive constant does not move the argmin", "Because N cancels with the log", "It is not harmless; it changes the answer"], 1, "Same point as his f(x) = x² vs (1/4)x² sketch: positive scaling changes the value, not where the minimum is."],
+        ["Where do <code>f(x) = x²</code>, <code>(1/4)x²</code> and <code>(1/4)x² + 1</code> attain their minima?", ["0, 0 and -1 respectively", "0, 0 and 1 respectively", "All three at x = 0", "They cannot be compared"], 2, "Positive scaling and adding a constant shift the value, never the argmin. This is the licence for dropping 1/N and H(P)."],
+        ["Using <code>(1/N) sum(·) = E[·]</code>, the negative average log-likelihood becomes which expectation?", ["E[log q(x)]", "E[-log p(x)]", "E[q(x)]", "E[-log q(x)]"], 3, "With q(x) = f(x | a, b) as the model, -(1/N) sum log f(x^(i)) = E[-log q(x)], which is the cross entropy."],
+        ["In his p. 4 sketch of a histogram with a Gaussian drawn over it, which is <code>p_i</code> and which is <code>q_i</code>?", ["p_i is the actual histogram; q_i = f(x^(i)|μ,σ) is the predicted Gaussian", "p_i is the Gaussian; q_i is the histogram", "Both are the actual data", "Both are model predictions"], 0, "P is always the actual distribution and Q the predicted one, as in the info-theory deck."],
+        ["Fitting a Gaussian's μ and σ by maximum likelihood minimizes what between the data and the model?", ["Squared error", "Cross entropy of the model under the data distribution", "The entropy of the model", "The dot product"], 1, "Max likelihood = min negative average log-likelihood = min E_p[-log q] = min cross entropy."],
+        ["Which transformation does NOT preserve the argmax of a likelihood?", ["Taking the log", "Multiplying by 1/N", "Multiplying by -1 and continuing to maximize", "Adding a constant"], 2, "Multiplying by -1 turns the maximizer into a minimizer. You must also switch max to min, which is exactly what the NLL step does."],
+        ["The cross-entropy loss can be reached by two different arguments. Which pair?", ["Jensen's inequality and the Hessian", "Lagrange multipliers and KKT", "Softmax and label encoding", "Optimal coding (info theory) and maximum likelihood (statistics)"], 3, "Info theory: expected bits under the wrong code. Statistics: negative average log-likelihood. Same formula."],
+        ["In <code>f(x^(i) | a, b)</code> for a Gaussian, what are <code>a</code> and <code>b</code>?", ["a = μ, b = σ", "a = x, b = y", "a = P, b = Q", "a = δ, b = α"], 0, "He writes a = μ, b = σ and {a, b} ∈ θ."],
+      ]},
+      { title: "CE = H(P) + KL, and Jensen's inequality", questions: [
+        ["To derive <code>CE = H(P) + KL</code> he rewrites <code>E[-log q(x)]</code> as <code>E[-log p(x) + log p(x) - log q(x)]</code>. What was added?", ["log q(x), once", "Zero, written as + log p(x) - log p(x)", "H(P)", "A Lagrange multiplier"], 1, "Adding and subtracting the same term is the entire trick. The split then falls out of linearity of expectation."],
+        ["Which two identities does he write at the top of p. 5 to make that derivation work?", ["Jensen's inequality and Bayes' rule", "The product and quotient rules", "E[a + b] = E[a] + E[b] and log a - log b = log(a/b)", "grad f = δ grad g and δg = 0"], 2, "Linearity of expectation splits the sum; the log rule merges log p - log q into log(p/q)."],
+        ["Under P, what is <code>E[log(p(x)/q(x))]</code>?", ["H(P)", "H(P, Q)", "H(Q)", "KL[P||Q]"], 3, "sum p log(p/q) is the definition of KL[P||Q]."],
+        ["Under P, what is <code>E[-log p(x)]</code>?", ["H(P)", "KL[P||Q]", "0", "H(P, Q)"], 0, "sum p log(1/p) is the entropy of P."],
+        ["Why is minimizing cross entropy over the model's predictions the same as minimizing KL?", ["Because KL is always zero at the optimum", "Because H(P) does not depend on Q, so it drops out of the argmin", "Because CE and KL are numerically equal", "Because log is concave"], 1, "CE = H(P) + KL, and H(P) is fixed by the labels. Same argmin, different values."],
+        ["The KL slide asks: 'log function is concave or convex?' Which is it?", ["Convex", "Linear", "Concave", "Neither"], 2, "log has negative second derivative, -1/x². Concavity is what makes the Jensen step run in the direction that proves KL ≥ 0."],
+        ["For a concave function f, Jensen's inequality says what?", ["E[f(X)] ≥ f(E[X])", "E[f(X)] = f(E[X]) always", "It applies only to Gaussians", "E[f(X)] ≤ f(E[X])"], 3, "For concave f the chord lies below the curve, so the average of f is at most f of the average."],
+        ["<code>f(x) = -x²</code>, <code>x ∈ {-2, 2}</code>, <code>p = [1/2, 1/2]</code>. What are <code>E[f(X)]</code> and <code>f(E[X])</code>?", ["-4 and 0", "0 and -4", "-4 and -4", "4 and 0"], 0, "E[f(X)] = (1/2)(-4) + (1/2)(-4) = -4. E[X] = 0 so f(E[X]) = 0. Indeed -4 ≤ 0, as Jensen requires for a concave f."],
+        ["On the Jensen page, which side does he label 'lb' and which 'ub'?", ["f(E[X]) is lb, E[f(X)] is ub", "E[f(X)] is the lower bound (lb), f(E[X]) the upper bound (ub)", "Both are labelled lb", "Neither is labelled"], 1, "For the concave case E[f(X)] ≤ f(E[X]), so the left side is the lower bound."],
+        ["For the convex <code>f(x) = x²</code>, which direction does Jensen run?", ["E[f(X)] ≤ f(E[X])", "E[f(X)] = f(E[X])", "E[f(X)] ≥ f(E[X])", "No relation holds"], 2, "Convex flips it: the chord lies above the curve. Using the convex direction on log would 'prove' KL ≤ 0."],
+        ["What is the wavy function at the bottom of the Jensen page for?", ["It shows every function is concave somewhere, so Jensen always applies", "It shows the log function", "It shows a strictly convex function", "It shows that for a function that is neither convex nor concave, a chord can cross the curve, so Jensen gives no guarantee"], 3, "Jensen needs global convexity or concavity. Local curvature is not enough."],
+        ["In his p. 10 proof, what is <code>g(x)</code>?", ["Q(x) / P(x)", "P(x) / Q(x)", "log P(x)", "The constraint function"], 0, "-KL = sum p log(Q/P) = E[log g(x)], with g = Q/P."],
+        ["Which step of the KL ≥ 0 proof is the only genuine inequality?", ["log sum P(x) Q(x)/P(x) = log sum Q(x)", "E[log g(X)] ≤ log E[g(X)]", "log sum Q(x) = log 1", "log 1 = 0"], 1, "Only the Jensen step is an inequality. His page writes ≤ down the whole column, but cancelling P and sum Q = 1 are equalities."],
+        ["Why does <code>log sum_x Q(x)</code> equal 0?", ["Because Q is uniform", "Because P = Q", "Because Q is a pmf, so it sums to 1 (his example: [0.8 0.1 0.1])", "Because log is concave"], 2, "He circles sum Q(x) and points to [0.8 0.1 0.1]. log 1 = 0."],
+        ["When is <code>KL[P||Q] = 0</code>?", ["Whenever H(P) = H(Q)", "Whenever P and Q have the same support", "Never", "If and only if P = Q"], 3, "The new typed line on p. 8: When P = Q, KL[P||Q] = 0. Equality of entropies is not enough."],
+      ]},
+      { title: "Label encoding, one-hot, softmax, and the choice of loss", questions: [
+        ["What is wrong with label-encoding <code>cat, fish, dog → 0, 1, 2</code> for classification?", ["It invents an order and distances between classes that do not exist", "It uses too much memory", "It cannot be used with softmax outputs of length 3 only", "Nothing; it is equivalent to one-hot"], 0, "A regressor on those codes predicts values like 0.5 or 1.1, which have no meaning as classes."],
+        ["He circles one row of the one-hot label matrix and writes a three-letter word on it. What is it?", ["pdf", "pmf", "cdf", "sgd"], 1, "A one-hot row is a probability mass function with all its mass on the true class."],
+        ["Why does it matter that a one-hot label is a pmf?", ["It makes the labels sortable", "It makes the model linear", "It can then play the role of P, the actual distribution, in cross entropy", "It guarantees convexity"], 2, "Cross entropy compares two distributions. One-hot makes the label a distribution; softmax makes the prediction one."],
+        ["The model outputs raw scores like <code>[237.2, 10, 7]</code>. What turns them into <code>[0.8, 0.1, 0.1]</code>?", ["One-hot encoding", "Label encoding", "Jensen's inequality", "Softmax"], 3, "Softmax exponentiates and normalizes scores into a pmf. (His numbers are illustrative, not the exact softmax.)"],
+        ["What is the best achievable value of <code>sum_i ||y_a^(i) - y_hat_p^(i)||²</code>?", ["0", "N", "1", "-N"], 0, "He writes 'best result = 0' next to the squared-error objective. It is minimized."],
+        ["What is the best achievable value of <code>sum_i y_a^(i) y_hat_p^(i)T</code> over N samples?", ["0", "N", "1", "Infinity"], 1, "Each one-hot dot product is at most 1, so the maximum is N. He writes 'best result = N'. It is maximized."],
+        ["For <code>y_a = [1 0 0]</code> and <code>y_hat_p = [0.8 0.1 0.1]</code>, what is the squared error?", ["0.2", "0.8", "0.06", "0.36"], 2, "(1 - 0.8)² + (0 - 0.1)² + (0 - 0.1)² = 0.04 + 0.01 + 0.01 = 0.06."],
+        ["For the same pair, what is the dot product <code>y_a y_hat_p^T</code>?", ["0.06", "1.0", "0.1", "0.8"], 3, "[1 0 0]·[0.8 0.1 0.1] = 0.8, the predicted probability of the true class."],
+        ["For the same pair, what is the cross entropy in natural log?", ["0.223", "0.8", "0.322", "0.06"], 0, "-(1·ln 0.8 + 0·ln 0.1 + 0·ln 0.1) = -ln 0.8 = 0.223. In bits it would be 0.322."],
+        ["With a one-hot label, which predicted probabilities appear directly in <code>-sum y_a log(y_hat_p)</code>?", ["All of them equally", "Only the predicted probability of the true class", "Only the largest one", "Only the wrong classes"], 1, "The zeros in y_a kill every other term. CE = -log q_true. The other outputs matter only through softmax normalization."],
+        ["What is the point of his p. 7 contrast between the dot-product objective and cross entropy?", ["The dot product is not differentiable", "Cross entropy is bounded, so it is safer", "The dot-product error is linear in the predicted probability and bounded, while -log grows without bound for confident wrong predictions", "They give identical gradients"], 2, "He sketches the linear error with a finite floor next to the log curve, and contrasts log 0.999999 with log 0.000001."],
+        ["If the true class gets predicted probability <code>0.000001</code>, what is its cross-entropy loss (natural log)?", ["0.000001", "1", "6", "About 13.8"], 3, "-ln(10^-6) = 6 ln 10 ≈ 13.8. The dot-product score for the same prediction is only 0.000001 worse than predicting 0."],
+        ["When training with cross entropy, which distribution is P and which is Q?", ["P is the one-hot label (actual); Q is the softmax output (predicted)", "P is the softmax output; Q is the label", "Both are the label", "It does not matter because CE is symmetric"], 0, "CE is not symmetric. P weights the terms; the log is taken of Q."],
+        ["Why would <code>-sum q log p</code> (arguments swapped) break with one-hot labels?", ["It would always be zero", "log of the zero entries in p is minus infinity", "Softmax would no longer sum to 1", "The Hessian would become indefinite"], 1, "One-hot labels are mostly zeros, so log p is undefined wherever the model puts any mass on a wrong class."],
+        ["He crosses out the sum over the dot products and writes a matrix expression. Which one?", ["Y_a^T Y_a", "||Y_a - Y_p||²", "Y_a Y_p^T", "Y_p^T Y_p"], 2, "The per-sample dot products are the diagonal of Y_a Y_p^T."],
+      ]},
+      { title: "Optimization taxonomy and convexity", questions: [
+        ["In his taxonomy, what do you do when there are no constraints?", ["Form a Lagrange function", "Apply KKT", "Solve the dual", "Take a derivative of the objective function and set it to zero"], 3, "No constraints → take a derivative of your objective function."],
+        ["What handles equality constraints?", ["A Lagrange function", "KKT alone", "Gradient ascent", "Softmax"], 0, "Equality → Lagrange function."],
+        ["What handles inequality constraints?", ["A Lagrange function alone", "A Lagrange function plus the KKT conditions", "Setting the derivative to zero", "Label encoding"], 1, "Inequality → Lagrange function + KKT."],
+        ["Which programming types does he bracket under 'Strong duality'?", ["Non-linear only", "All three", "Linear and quadratic", "None of them"], 2, "Linear and quadratic are bracketed with → Strong duality. The non-linear example is circled separately."],
+        ["<code>f(x,y) = exp(x²) + 2y³</code> s.t. <code>sin(x) + exp(y) < 10</code> is which kind of programming?", ["Linear", "Quadratic", "Convex quadratic", "Non-linear"], 3, "Exponentials, sines and cubes put it outside linear and quadratic programming."],
+        ["Maximize <code>f(x) = x</code> on <code>[-5, 5]</code>. Where is the maximum?", ["x = 5, on the boundary", "x = 0, where f' = 0", "x = -5", "There is no maximum"], 0, "A linear function has no stationary point. Without the interval it is unbounded; with it, the answer is at the boundary."],
+        ["What happens at <code>x = 0</code> for <code>f(x) = x³</code>?", ["A minimum", "An inflection point: f''(x) = 6x changes sign there", "A maximum", "A kink where f' does not exist"], 1, "f'' = 0 at a point does not make it an optimum. x³ is neither convex nor concave overall."],
+        ["For <code>x < 0</code>, is <code>x³</code> convex or concave?", ["Convex, since f'' > 0", "Linear", "Concave, since f''(x) = 6x < 0", "Neither"], 2, "f'' = 6x is negative for x < 0. His sketch appears to label the sides the other way round — trust the second derivative."],
+        ["Which is true of <code>f(x) = |x|</code>?", ["It is concave", "Its derivative is zero at the minimum", "It has no minimum", "It is convex with its minimum at 0, where the derivative does not exist"], 3, "f' = -1 on the left, +1 on the right. Convexity does not require differentiability, and f' = 0 finds nothing here."],
+        ["What is the Hessian of <code>f(x, y)</code>?", ["The 2x2 matrix of second partial derivatives", "The vector of first partial derivatives", "The Lagrange multiplier", "The determinant of the gradient"], 0, "H = [[∂²f/∂x², ∂²f/∂x∂y], [∂²f/∂y∂x, ∂²f/∂y²]]."],
+        ["<code>v^T H v > 0</code> for every non-zero <code>v</code>. What is H?", ["Positive semi-definite", "Positive definite", "Negative definite", "Indefinite"], 1, "Strictly greater than zero is positive definite. ≥ 0 is positive semi-definite."],
+        ["What is the Hessian of <code>f(x, y) = x² + y</code>, and what does it tell you?", ["[[2, 0], [0, 2]]; strictly convex", "[[2, 1], [1, 0]]; indefinite", "[[2, 0], [0, 0]]; positive semi-definite, so convex but not strictly", "[[0, 0], [0, 0]]; linear"], 2, "y enters linearly, so its second derivative is 0. The function is convex but flat in y, and in fact unbounded below along y."],
+        ["Why do we want the objective to be convex?", ["Convex functions always have closed-form solutions", "Convex functions are always differentiable", "Convex functions have no minimum", "Any local minimum of a convex function is a global minimum"], 3, "That is the guarantee convexity buys. It does not guarantee a closed form or even that a minimum exists."],
+        ["Classify <code>f(x, y) = x² + 2y²</code>.", ["Strictly convex: H = [[2, 0], [0, 4]] is positive definite", "Convex but not strictly: H is only PSD", "Concave", "Neither convex nor concave"], 0, "v^T H v = 2v₁² + 4v₂² > 0 for all v ≠ 0."],
+        ["Is every convex function guaranteed to have a minimum?", ["Yes, always", "No — for example x² + y is convex but unbounded below along y", "Yes, if it is differentiable", "Only in one dimension"], 1, "Convexity says any minimum is global; it says nothing about whether one exists. exp(x) is another example."],
+      ]},
+      { title: "Unconstrained and equality-constrained problems (Lagrange)", questions: [
+        ["In his running example, what are <code>M</code> and <code>S</code>?", ["Mean and standard deviation", "Model and sample size", "Hours per day you study ML and hours you sleep", "Mass and speed"], 2, "Min f(M, S) = 6M² + 3S², with M = hours studying ML per day and S = hours of sleep."],
+        ["Minimize <code>6M² + 3S²</code> with no constraints. What is the answer?", ["M = 8, S = 16", "M = 12, S = 12", "There is no minimum", "M = 0, S = 0"], 3, "12M = 0 and 6S = 0. Correct and useless — which is why a constraint is added."],
+        ["Add <code>M + S = 24</code>. What is the constraint function?", ["g(M, S) = M + S - 24 = 0", "g(M, S) = M + S", "g(M, S) = 24", "g(M, S) = M - S - 24"], 0, "Move everything to one side so the constraint reads g = 0."],
+        ["Which is his Lagrange function for this problem?", ["6M² + 3S² + M + S", "6M² + 3S² - δ(M + S - 24)", "δ(6M² + 3S²) - (M + S - 24)", "6M² + 3S² - 24δ"], 1, "L(M, S, δ) = f(M, S) ± δ g(M, S); he uses the minus sign here."],
+        ["What does <code>∂L/∂M = 0</code> give?", ["M = 12δ", "M = 24 - S", "M = δ/12", "M = 0"], 2, "12M - δ = 0, so M = δ/12. Likewise 6S - δ = 0 gives S = δ/6."],
+        ["What value of <code>δ</code> solves the system?", ["12", "24", "48", "96"], 3, "δ/12 + δ/6 = δ/4 = 24, so δ = 96."],
+        ["What are the optimal <code>M</code> and <code>S</code>?", ["M = 8, S = 16", "M = 16, S = 8", "M = 12, S = 12", "M = 0, S = 24"], 0, "M = 96/12 = 8, S = 96/6 = 16. Check: 8 + 16 = 24."],
+        ["What does <code>∂L/∂δ = 0</code> give you?", ["δ = 0", "The constraint M + S = 24 back again", "The Hessian", "A second multiplier"], 1, "Differentiating -δ(M + S - 24) with respect to δ just returns the constraint. That is how the constraint enters the system."],
+        ["What is the objective value at the constrained optimum <code>(8, 16)</code>?", ["0", "576", "1152", "1881"], 2, "6·64 + 3·256 = 384 + 768 = 1152."],
+        ["Setting <code>∇L = 0</code> for <code>L = f - δg</code> gives which geometric condition?", ["∇f = 0", "∇g = 0", "∇f ⟂ ∇g", "∇f = δ∇g, so the gradients are parallel"], 3, "At the constrained optimum the objective's gradient is a multiple of the constraint's."],
+        ["Next to δ he writes 'large value', 'δ = 0.001', 'δ = 0'. What does δ = 0 mean?", ["The constraint is not pushing against the objective at all", "The problem is infeasible", "The objective is zero", "The constraint is violated"], 0, "δ scales how hard the constraint pushes. δ = 0 means the unconstrained optimum already sits where the constraint wants it."],
+        ["How many Lagrange multipliers does a problem with two equality constraints need?", ["One, shared", "Two, one per constraint (δ₁, δ₂)", "None", "Four"], 1, "L(M, S, δ₁, δ₂) = f - δ₁ g - δ₂ h."],
+        ["With constraints <code>M + S = 24</code> and <code>M - S = 10</code>, what is the solution?", ["M = 8, S = 16", "M = 12, S = 12", "M = 17, S = 7", "M = 10, S = 14"], 2, "Two equations in two unknowns pin M = 17 and S = 7 regardless of the objective. (He only sets this one up; the arithmetic is ours.)"],
+        ["Minimize <code>6M² + 3S²</code> s.t. <code>M + S = 30</code>. What are <code>δ, M, S</code>?", ["δ = 96, M = 8, S = 16", "δ = 30, M = 15, S = 15", "δ = 60, M = 5, S = 10", "δ = 120, M = 10, S = 20"], 3, "M = δ/12, S = δ/6, so δ/4 = 30 and δ = 120."],
+        ["What does he mean by a 'closed form solution'?", ["The optimum is written directly as a formula, like M = δ/12", "The solution requires iteration", "The feasible set is closed", "The Hessian is invertible"], 0, "Contrast with gradient descent, used when f'(x) = 0 cannot be solved algebraically."],
+        ["Besides δ, what other symbols does he say Lagrange multipliers go by?", ["μ and σ", "α and β", "p and q", "H and KL"], 1, "δ ~> Lagrange multiplier ~> α, β. The SVM lectures use α."],
+      ]},
+      { title: "Inequality constraints and KKT", questions: [
+        ["How does he write the constraint <code>M + S ≤ 24</code> in standard form?", ["g(M, S) = 24 - M - S ≤ 0", "g(M, S) = M + S - 24 ≤ 0", "g(M, S) = M + S - 24 ≥ 0", "g(M, S) = M + S = 24"], 1, "Standard form puts the constraint as g ≤ 0."],
+        ["What are the four KKT conditions, in his order?", ["Convexity, differentiability, feasibility, duality", "Primal, dual, weak, strong", "Stationarity, primal feasibility, dual feasibility, complementary slackness", "Gradient, Hessian, multiplier, gap"], 2, "① Stationary ② Primal feasibility ③ Dual feasibility ④ Complementary slackness."],
+        ["What is primal feasibility?", ["δ ≥ 0", "δ g = 0", "∇L = 0", "g(M, S) ≤ 0"], 3, "The original constraint must hold."],
+        ["What is dual feasibility?", ["δ ≥ 0", "g ≤ 0", "δ g = 0", "δ = 0"], 0, "The inequality multiplier must be non-negative."],
+        ["What is complementary slackness?", ["δ + g = 0", "δ g(M, S) = 0", "δ = g", "δ ≥ g"], 1, "Either the constraint is tight (g = 0) or its multiplier is zero (δ = 0)."],
+        ["What does 'active' mean for an inequality constraint?", ["The constraint is violated", "δ must be zero", "The optimum is on the boundary, g = 0, and δ may be positive", "The constraint is ignored"], 2, "An active constraint behaves like an equality; his diagram writes g = 0 → δ > 0."],
+        ["What does 'inactive' mean?", ["g = 0 and δ > 0", "The constraint does not have to hold", "g > 0", "g < 0 at the optimum and δ = 0"], 3, "The unconstrained optimum already satisfies the constraint, so it isn't binding. It still has to hold."],
+        ["Minimize <code>6M² + 3S²</code> s.t. <code>M + S ≤ 24</code>. What is the solution?", ["M = S = 0, constraint inactive, δ = 0", "M = 8, S = 16, constraint active", "M = 12, S = 12", "No solution exists"], 0, "The unconstrained minimum (0, 0) satisfies 0 ≤ 24, so the constraint never binds."],
+        ["Minimize <code>x²</code> s.t. <code>x ≤ 3</code>. Where is the minimum, and is the constraint active?", ["x = 3, active", "x = 0, inactive", "x = -3, active", "x = 3, inactive"], 1, "Candidate ① at x = 3 has f = 9; candidate ② at x = 0 has f = 0 and is feasible."],
+        ["Minimize <code>x²</code> s.t. <code>x ≤ -3</code>. Where is the minimum?", ["x = 0, inactive", "x = 3, active", "x = -3, active", "Unbounded"], 2, "x = 0 is now infeasible, so the optimum is pushed to the boundary."],
+        ["How does he rewrite <code>x ≤ -3</code> as a <code>g(x) ≤ 0</code> constraint?", ["g(x) = x - 3", "g(x) = -x - 3", "g(x) = 3 - x", "g(x) = x + 3"], 3, "x + 3 ≤ 0 → g(x) ≤ 0 → primal feasibility."],
+        ["Minimizing a concave cap on <code>[-3, 2]</code>: what is the interior stationary point?", ["The maximum; the minimum is at one of the active boundaries", "The minimum", "Infeasible", "An inflection point"], 0, "The stationary point ② (inactive) satisfies ∇f = 0 but is the worst place to be. KKT candidates must still be compared."],
+        ["He circles <code>g(M, S) > 0</code>. What does it represent?", ["An active constraint", "An infeasible point that violates primal feasibility", "An inactive constraint", "A saddle point"], 1, "g ≤ 0 is required. g > 0 is outside the feasible region."],
+        ["At a KKT point, can both <code>δ</code> and <code>g</code> be non-zero?", ["Yes, always", "Yes, when the constraint is active", "No — complementary slackness forbids it", "Only for equality constraints"], 2, "δg = 0 is an 'or': g = 0, or δ = 0, or both."],
+        ["Minimize <code>x²</code> s.t. <code>x ≥ 2</code>. Where is the minimum?", ["x = 0, inactive", "x = -2, active", "Unbounded", "x = 2, active"], 3, "The unconstrained minimum x = 0 violates x ≥ 2, so the optimum is on the boundary."],
+        ["What sign restriction applies to the multiplier of an <em>equality</em> constraint?", ["None — it can be any sign", "δ ≥ 0", "δ ≤ 0", "δ = 0"], 0, "Dual feasibility (δ ≥ 0) is an inequality-constraint condition. Equality multipliers are unrestricted."],
+      ]},
+      { title: "Primal and dual", questions: [
+        ["For <code>min (1/2)M² + (1/2)S²</code> s.t. <code>M + S = 24</code>, what does <code>∂L/∂M = 0</code> give?", ["M = δ/12", "M = δ", "M = 24", "M = 2δ"], 1, "M - δ = 0. Likewise S = δ. He labels this step 'primal form'."],
+        ["Substituting <code>M = S = δ</code> back into L gives which dual function?", ["δ² - 24δ", "2δ² + 24δ", "-δ² + 24δ", "24δ"], 2, "(1/2)δ² + (1/2)δ² - δ(2δ - 24) = δ² - 2δ² + 24δ = -δ² + 24δ."],
+        ["The dual function <code>-δ² + 24δ</code> is concave. What do you do with it?", ["Minimize it", "Set it to zero", "Take its Hessian and stop", "Maximize it"], 3, "He writes 'Concave, Max, Dual form'. Minimizing it would run off to -∞."],
+        ["What is the optimal <code>δ</code>?", ["12", "24", "6", "96"], 0, "-2δ + 24 = 0 → δ = 12."],
+        ["What are the optimal <code>M</code> and <code>S</code>?", ["8 and 16", "12 and 12", "6 and 18", "24 and 0"], 1, "M = S = δ = 12."],
+        ["What are the primal and dual optimal values?", ["144 and 288", "288 and 144", "Both 144", "Both 0"], 2, "Primal: (1/2)(144) + (1/2)(144) = 144. Dual: -144 + 288 = 144. Equal, so strong duality holds."],
+        ["What does weak duality say?", ["Primal min = dual max always", "The dual is convex", "The dual is always infeasible", "The dual's max is at or below the primal's min"], 3, "His sketch: primal bowl above, dual cap below, with a gap between them."],
+        ["What is strong duality?", ["The duality gap is zero: primal min = dual max", "The dual is minimized instead of maximized", "Every constraint is active", "The Hessian is positive definite"], 0, "In his picture the bowl and the cap touch at one point."],
+        ["What is the duality gap?", ["δ - g", "Primal optimum minus dual optimum", "The distance between two constraints", "H(P,Q) - H(P)"], 1, "Weak duality guarantees it is at least zero; strong duality makes it zero."],
+        ["Derive the dual of <code>min (1/2)M² + (1/2)S²</code> s.t. <code>M + S = 10</code>. What are <code>δ*</code> and the optimal value?", ["δ = 10, value 50", "δ = 5, value 50", "δ = 5, value 25", "δ = 10, value 25"], 2, "L(δ) = -δ² + 10δ, max at δ = 5, value 25. Primal: f(5, 5) = 12.5 + 12.5 = 25."],
+        ["A convex minimization has what kind of dual?", ["A convex minimization", "A linear program", "A non-linear equality problem", "A concave maximization"], 3, "Convex primal (min) → concave dual (max)."],
+        ["Where in the course does the dual form pay off?", ["Support vector machines, where the dual is the problem actually solved", "K-means", "PCA", "Decision trees"], 0, "The KKT/SVM Stanford notes are listed for Week 16 for exactly this reason."],
+      ]},
+      { title: "Gradient descent and derivative rules", questions: [
+        ["Why does he use gradient descent for <code>f(x) = x² + exp(x)</code>?", ["Setting 2x + exp(x) = 0 has no closed-form solution", "The function is not convex", "The function has no minimum", "The derivative does not exist"], 0, "'This does NOT have a closed form solution.' The equation exists; it just can't be solved algebraically."],
+        ["Which is the gradient descent update?", ["x ← x + α∇f(x)", "x ← x - α∇f(x)", "x ← α x", "x ← ∇f(x)"], 1, "Step against the gradient to go downhill."],
+        ["What does <code>x ← x + α∇f(x)</code> perform?", ["Gradient descent", "Newton's method", "Gradient ascent", "Lagrange multipliers"], 2, "He writes ± with + labelled GA and - labelled GD."],
+        ["What does he call <code>α</code>?", ["A Lagrange multiplier", "A model parameter learned by GD", "The Hessian", "The learning step, a hyperparameter"], 3, "It is chosen by you, not learned. His example uses α = 0.02."],
+        ["One GD step on <code>x² + exp(x)</code> from <code>x = 3</code> with <code>α = 0.02</code>. What is <code>x</code> next?", ["About 2.478", "About 3.522", "About 2.88", "About -0.35"], 0, "3 - 0.02(6 + e³) = 3 - 0.02(26.086) = 2.478. (-0.35 is the true minimizer, not one step.)"],
+        ["After that step, how does <code>f</code> compare?", ["It increases", "f(x^t) > f(x^(t+1)); it decreases (about 29.09 → 18.06)", "It is unchanged", "It becomes negative"], 1, "He writes f(x^{t}) > f(x^{t+1}) and circles the new value."],
+        ["Is <code>x² + exp(x)</code> convex?", ["No, exp makes it non-convex", "Only for x > 0", "Yes, strictly: f'' = 2 + e^x > 0", "It is concave"], 2, "So the lack of a closed form, not non-convexity, is what motivates GD here."],
+        ["One GD step on <code>f(x) = x²</code> from <code>x = 5</code> with <code>α = 0.1</code>. Result?", ["x = 5", "x = 0", "x = -10", "x = 4"], 3, "f' = 10, so x = 5 - 0.1·10 = 4."],
+        ["Same function and start, but <code>α = 1.5</code>. What happens?", ["x = -10, and it diverges", "x = 3.5, converging", "x = 0 in one step", "x = 5, no change"], 0, "x = 5 - 1.5·10 = -10. Each step maps x → -2x, so it overshoots further every time."],
+        ["With fixed <code>α</code>, why do GD steps shrink near the minimum?", ["α decays automatically", "The step is α times the gradient, and the gradient shrinks as the slope flattens", "The Hessian grows", "They don't shrink"], 1, "His sketch shows big steps on the steep side and tiny ones near the bottom."],
+        ["What does 'GD ~> BGD' mean?", ["GD uses one sample per step", "GD is a special case of Lagrange", "Plain GD is batch gradient descent: the gradient is computed on the whole dataset each step", "BGD is gradient ascent"], 2, "Batch GD uses all N samples per step. SGD and momentum are not covered in the notes."],
+        ["What is <code>f'(3)</code> for <code>f(x) = x² + exp(x)</code>?", ["9 + e³", "6", "e³", "6 + e³ ≈ 26.09"], 3, "2x + e^x at x = 3."],
+        ["Which is the quotient rule?", ["(f/g)' = (f'g - fg') / g²", "(f/g)' = f'/g'", "(f/g)' = (fg' - f'g) / g²", "(f/g)' = (f'g + fg') / g²"], 0, "Rule ① on p. 22. The sign order matters: f'g minus fg'."],
+        ["Which is the product rule?", ["(fg)' = f'g'", "(fg)' = f'g + fg'", "(fg)' = f'g - fg'", "(fg)' = (f'g + fg') / g²"], 1, "Rule ② on p. 22."],
+        ["What is <code>(u^n)'</code> by his chain rule?", ["n u^(n-1)", "u' u^n", "n u' u^(n-1)", "n u'"], 2, "Rule ③: bring down n, multiply by u', reduce the power by one."],
+      ]},
+      { title: "Traps, the convolution page, and mixed reasoning", questions: [
+        ["Minimizing NLL, minimizing CE and minimizing KL: which statement is correct?", ["They give different parameters", "They are the same number in every case", "Only NLL is a valid loss", "They share an argmin; CE and KL differ by the constant H(P)"], 3, "For one-hot labels H(P) = 0, so CE and KL also coincide numerically."],
+        ["Multiplying an objective by -1 does what?", ["Turns a minimization into a maximization with the same optimizer", "Leaves everything unchanged", "Makes it convex", "Doubles the minimum"], 0, "Positive scaling preserves min/max; negative scaling swaps them."],
+        ["With soft labels <code>P = [0.7, 0.3]</code>, what is the lowest cross entropy any model can reach?", ["0", "About 0.881 bits, the entropy H(P)", "1 bit", "0.3 bits"], 1, "CE = H(P) + KL, and KL ≥ 0 with equality iff Q = P."],
+        ["A classmate says 'train by maximizing cross entropy, since it comes from maximum likelihood.' What's wrong?", ["Nothing", "Cross entropy is not related to likelihood", "Maximizing likelihood is minimizing cross entropy; the minus sign flips the direction", "Likelihood should be minimized"], 2, "Max likelihood = min negative log-likelihood = min CE."],
+        ["His <code>x³</code> sketch seems to label the left side 'convex' and the right side 'concave'. What should you trust?", ["The sketch labels", "Neither; x³ is linear", "That x³ is convex everywhere", "f''(x) = 6x: concave for x < 0, convex for x > 0"], 3, "The second derivative is the test. The labels on the page appear swapped."],
+        ["He writes <code>≤</code> on every line of the KL ≥ 0 proof. How many of those steps are actually inequalities?", ["One — the Jensen step", "All of them", "None", "Two"], 0, "Cancelling P, summing Q to 1 and log 1 = 0 are all equalities."],
+        ["His 3x3 filter has rows <code>[1 0 -1]</code>, <code>[? 0 ?]</code>, <code>[1 0 -1]</code> over the patch <code>[[0,1,2],[2,1,3],[1,2,1]]</code>. His product matrix and np.sum give which value?", ["0", "-3", "-4", "3"], 1, "His product [[0,0,-2],[2,0,-3],[1,0,-1]] sums to -3, which matches a middle row of [1 0 -1]."],
+        ["If the middle row were Sobel's <code>[2 0 -2]</code>, what would np.sum give on the same patch?", ["-3", "0", "-4", "-6"], 2, "0 - 2 + 4 - 6 + 1 - 1 = -4. The middle row is overwritten on the page, so the two readings disagree."],
+        ["A 3x3 filter slides over an 8x8 image with no padding. What size is the valid output?", ["8x8", "3x3", "5x5", "6x6"], 3, "8 - 3 + 1 = 6. His 8x8 output grid fills the border with zeros."],
+        ["Which pair of objectives are both minimized in his notes?", ["Squared error and cross entropy", "Dot product and cross entropy", "Likelihood and cross entropy", "The dual function and squared error"], 0, "The dot product and the likelihood are maximized, and so is the dual of a convex problem."],
+        ["For a convex primal minimization, which of these is maximized?", ["The cross-entropy loss", "The dual function L(δ)", "The squared error", "The negative log-likelihood"], 1, "The dual of a convex minimization is concave and is maximized."],
+        ["For an equality constraint, you write <code>L = f + δg</code> instead of <code>f - δg</code>. What changes?", ["The optimal M and S", "Whether the problem is feasible", "Only the sign of δ at the optimum; M and S are unchanged", "The problem becomes non-convex"], 2, "He writes ± on the Lagrange function for this reason. For inequalities the sign convention must match δ ≥ 0."],
+        ["An inequality constraint is inactive at the optimum. Which statement is correct?", ["The constraint can be violated", "δ > 0", "g = 0", "δ = 0, and the constraint still holds strictly (g < 0)"], 3, "Inactive means non-binding, not absent."],
+        ["Which statement about gradient descent is FALSE?", ["GD is only needed when the objective is non-convex", "α is a hyperparameter", "GD and GA differ by the sign of the step", "With too large an α, GD can diverge"], 0, "His GD example, x² + exp(x), is strictly convex. The reason for GD is that there is no closed form."],
+      ]},
+    ];
+
+    const letters = ["A", "B", "C", "D"];
+    const escapeHtml = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    const STORAGE_KEY = "opt-mcq-progress-v1";
+    const FILTER_KEY = "opt-mcq-filter-v1";
+
+    function loadProgress() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+      catch (e) { return {}; }
+    }
+    function saveProgress(progress) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+      catch (e) { /* localStorage unavailable — progress just won't persist */ }
+    }
+    function loadFilter() {
+      try { return localStorage.getItem(FILTER_KEY) || "all"; }
+      catch (e) { return "all"; }
+    }
+    function saveFilter(f) {
+      try { localStorage.setItem(FILTER_KEY, f); }
+      catch (e) { /* ignore */ }
+    }
+
+    let progress = loadProgress();
+    let currentFilter = loadFilter();
+
+    let number = 0;
+    const bank = document.getElementById("bank");
+    for (const section of sections) {
+      const wrapper = document.createElement("section");
+      wrapper.className = "topic";
+
+      const heading = document.createElement("h2");
+      heading.textContent = section.title;
+      wrapper.appendChild(heading);
+
+      const list = document.createElement("ol");
+      list.className = "questions";
+      list.start = number + 1;
+
+      for (const [prompt, options, answerIndex, explanation] of section.questions) {
+        number += 1;
+        const n = String(number);
+        const item = document.createElement("li");
+        item.className = "question";
+        item.dataset.n = n;
+        item.innerHTML = `
+          <div class="prompt">${prompt}</div>
+          <ol class="options" type="A">
+            ${options.map(option => `<li>${escapeHtml(option)}</li>`).join("")}
+          </ol>
+          <details>
+            <summary>Show answer</summary>
+            <p class="answer"><strong>${letters[answerIndex]}.</strong> ${escapeHtml(options[answerIndex])}<br>${escapeHtml(explanation)}</p>
+          </details>
+          <div class="track" data-n="${n}">
+            <button class="mark correct" type="button">✓ Got it right</button>
+            <button class="mark wrong" type="button">✗ Got it wrong</button>
+            <span class="status-label"></span>
+          </div>`;
+        list.appendChild(item);
+      }
+      wrapper.appendChild(list);
+      bank.appendChild(wrapper);
+    }
+
+    const totalQuestions = number;
+
+    function updateTrackUI(track) {
+      const n = track.dataset.n;
+      const status = progress[n];
+      track.querySelector(".mark.correct").classList.toggle("active", status === "correct");
+      track.querySelector(".mark.wrong").classList.toggle("active", status === "wrong");
+      const label = track.querySelector(".status-label");
+      label.textContent = status === "correct" ? "Marked correct" : status === "wrong" ? "Marked wrong — review this" : "";
+    }
+
+    function applyFilter() {
+      let anyVisible = 0;
+      bank.querySelectorAll(".topic").forEach(sectionEl => {
+        let visibleInSection = 0;
+        sectionEl.querySelectorAll("li.question").forEach(li => {
+          const status = progress[li.dataset.n];
+          let show = true;
+          if (currentFilter === "wrong") show = status === "wrong";
+          else if (currentFilter === "correct") show = status === "correct";
+          else if (currentFilter === "unanswered") show = !status;
+          li.hidden = !show;
+          if (show) visibleInSection++;
+        });
+        sectionEl.hidden = visibleInSection === 0;
+        anyVisible += visibleInSection;
+      });
+      const emptyState = document.getElementById("emptyState");
+      if (anyVisible === 0) {
+        const messages = {
+          wrong: "Nothing marked wrong yet — nice work, or you haven't graded yourself yet.",
+          correct: "Nothing marked correct yet.",
+          unanswered: "Everything has been marked — nice work.",
+          all: "No questions to show.",
+        };
+        emptyState.textContent = messages[currentFilter] || "No questions to show.";
+        emptyState.hidden = false;
+      } else {
+        emptyState.hidden = true;
+      }
+    }
+
+    function updateCount() {
+      let correct = 0, wrong = 0;
+      for (const n in progress) {
+        if (progress[n] === "correct") correct++;
+        else if (progress[n] === "wrong") wrong++;
+      }
+      const unanswered = totalQuestions - correct - wrong;
+      document.getElementById("count").textContent =
+        `${totalQuestions} questions across ${sections.length} sections · ${correct} correct · ${wrong} wrong · ${unanswered} unanswered`;
+    }
+
+    bank.addEventListener("click", (e) => {
+      const btn = e.target.closest(".mark");
+      if (!btn) return;
+      const track = btn.closest(".track");
+      const n = track.dataset.n;
+      const status = btn.classList.contains("correct") ? "correct" : "wrong";
+      progress[n] = progress[n] === status ? undefined : status;
+      if (progress[n] === undefined) delete progress[n];
+      saveProgress(progress);
+      updateTrackUI(track);
+      applyFilter();
+      updateCount();
+    });
+
+    document.querySelectorAll(".filter").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentFilter = btn.dataset.filter;
+        saveFilter(currentFilter);
+        document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b === btn));
+        applyFilter();
+      });
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      if (!confirm("Clear all saved right/wrong marks for this question bank?")) return;
+      progress = {};
+      saveProgress(progress);
+      bank.querySelectorAll(".track").forEach(updateTrackUI);
+      applyFilter();
+      updateCount();
+    });
+
+    // initial paint
+    bank.querySelectorAll(".track").forEach(updateTrackUI);
+    document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b.dataset.filter === currentFilter));
+    applyFilter();
+    updateCount();
+  </script>
+</body>
+</html>

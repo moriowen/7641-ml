@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Information Theory MCQ Bank</title>
+  <style>
+    :root { color-scheme: light dark; --page:#f6f6f3; --card:#fff; --text:#1c1c1a; --muted:#686862; --line:#d8d8d1; --accent:#245c46; --answer:#eef6f1; --correct:#2f8f5b; --wrong:#c1483c; }
+    @media (prefers-color-scheme: dark) { :root { --page:#171816; --card:#20211f; --text:#ededE8; --muted:#aaa9a1; --line:#3a3b37; --accent:#8ed0ad; --answer:#1b2b23; --correct:#3fae74; --wrong:#e06a5c; } }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--text); font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(820px, calc(100% - 32px)); margin:48px auto 80px; }
+    header { margin-bottom:24px; }
+    h1 { margin:0 0 8px; font-size:clamp(1.8rem,5vw,2.7rem); line-height:1.12; letter-spacing:-.03em; }
+    h2 { margin:42px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line); font-size:1.18rem; }
+    p { margin:0; }
+    .intro { color:var(--muted); max-width:68ch; }
+    .count { margin-top:10px; font-size:.9rem; color:var(--muted); }
+    .controls { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 0; margin-bottom:8px; background:var(--page); border-bottom:1px solid var(--line); }
+    .controls .label { font-size:.85rem; color:var(--muted); margin-right:2px; }
+    .filter { cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; padding:6px 14px; font-size:.85rem; font-weight:600; }
+    .filter.active { background:var(--accent); border-color:var(--accent); color:var(--page); }
+    .reset { margin-left:auto; cursor:pointer; border:1px solid var(--line); background:transparent; color:var(--muted); border-radius:6px; padding:6px 10px; font-size:.8rem; }
+    .reset:hover { color:var(--text); border-color:var(--text); }
+    .empty-state { padding:28px 8px; color:var(--muted); font-style:italic; }
+    ol.questions { margin:0; padding-left:2rem; }
+    li.question { padding:18px 18px 18px 8px; border-bottom:1px solid var(--line); }
+    .prompt { margin-bottom:10px; font-weight:620; }
+    ol.options { margin:0 0 12px; padding-left:1.7rem; }
+    ol.options li { padding:2px 0; }
+    code { font-family:"SFMono-Regular",Consolas,monospace; font-size:.94em; }
+    details { background:var(--answer); border:1px solid var(--line); border-radius:6px; padding:8px 11px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+    .answer { margin-top:8px; }
+    .answer strong { color:var(--accent); }
+    .track { margin-top:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .mark { cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:6px; padding:6px 10px; font-size:.85rem; font-weight:600; }
+    .mark.correct.active { background:var(--correct); border-color:var(--correct); color:#fff; }
+    .mark.wrong.active { background:var(--wrong); border-color:var(--wrong); color:#fff; }
+    .status-label { font-size:.8rem; color:var(--muted); }
+    footer { margin-top:44px; color:var(--muted); font-size:.86rem; }
+    @media print { :root { color-scheme:light; } body { background:#fff; } main { width:100%; margin:0; } details { break-inside:avoid; } .controls { position:static; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Information Theory MCQ Bank</h1>
+      <p class="intro">Practice questions based on the CS 4641/7641 information theory deck, the professor's annotated notes, and the lecture-notes keyword list. Weighted toward the relationships between quantities rather than the definitions alone — that is what the take-home slide says twice. Every item is multiple choice. Open the answer only when you are ready to check your work.</p>
+      <p class="count" id="count"></p>
+    </header>
+    <div class="controls">
+      <span class="label">Show:</span>
+      <button class="filter active" data-filter="all" type="button">All</button>
+      <button class="filter" data-filter="wrong" type="button">Wrong only</button>
+      <button class="filter" data-filter="unanswered" type="button">Unanswered</button>
+      <button class="filter" data-filter="correct" type="button">Correct only</button>
+      <button class="reset" id="reset" type="button">Reset progress</button>
+    </div>
+    <p class="empty-state" id="emptyState" hidden></p>
+    <div id="bank"></div>
+    <footer>Source coverage: surprisal and optimal coding, entropy and its five properties, joint entropy, conditional entropy and equivocation, mutual information and information gain, cross entropy, KL divergence and Jensen's inequality, plus the identity web connecting them and the traps that live in the gaps between formulas. Right/wrong marks are saved in this browser only (localStorage) — they don't sync across devices.</footer>
+  </main>
+  <script>
+    const sections = [
+      { title: "Information, surprisal, and coding", questions: [
+        ["What is the information content (surprisal) of a single outcome <code>x</code>?", ["I(x) = log_2(1/p(x))", "I(x) = p(x) log p(x)", "I(x) = -p(x)", "I(x) = 1 - p(x)"], 0, "Surprisal is log_2(1/p(x)), equivalently -log_2 p(x). It is a property of one outcome, not of the whole variable."],
+        ["Two outcomes have probabilities 0.8 and 0.2. Which carries more information?", ["The one with probability 0.8", "The one with probability 0.2", "They carry the same information", "Information is undefined for individual outcomes"], 1, "Rarer outcomes are more surprising. Seeing an uncommon event tells you more than seeing a common one."],
+        ["What is <code>I(x)</code> in bits when <code>p(x) = 1/4</code>?", ["0.25 bits", "1 bit", "2 bits", "4 bits"], 2, "log_2(1/(1/4)) = log_2 4 = log_2 2^2 = 2 bits. This is the professor's own [cat, cat, cat, dog] calculation for the dog."],
+        ["What is <code>I(x)</code> when <code>p(x) = 1</code>?", ["1 bit", "Undefined", "Infinite", "0 bits"], 3, "log_2(1/1) = log_2 1 = 0. A certain outcome carries no information because it resolves no uncertainty."],
+        ["What happens to <code>I(x)</code> as <code>p(x)</code> approaches 0?", ["It grows without bound", "It approaches 1", "It approaches 0", "It becomes negative"], 0, "log_2(1/p) goes to +infinity. This matches the intuition that a near-impossible event is maximally surprising when it happens."],
+        ["In the coin sequence <code>T,T,T,T,H</code> the professor computes P(T)=4/5 and P(H)=1/5. Which symbol should get the shorter code?", ["H, because it is rarer", "T, because it is more frequent", "Both should get equal-length codes", "Neither — code length is unrelated to probability"], 1, "Frequently occurring events should have short encodings. Giving T the one-character code drops the total from 9 characters to 6."],
+        ["On the same slide he asks which should carry more information, T or H. What is the answer?", ["T, because it occurs more often", "Both equally", "H, because it is less probable", "The question is only about code length, not information"], 2, "The two questions on that slide point in opposite directions on purpose: T is likelier, so H carries more information and needs the longer code."],
+        ["What unit does information carry when logarithms are base 2?", ["Nats", "Hartleys", "Joules", "Bits"], 3, "Base 2 gives bits. Base e would give nats."],
+        ["Changing from <code>log_2</code> to <code>ln</code> throughout has what effect?", ["It rescales every quantity by the same constant factor and changes no comparison or identity", "It changes which of two entropies is larger", "It makes entropy negative", "It invalidates the chain rule"], 0, "The base change is a uniform multiplicative constant (ln 2). Numbers change, but every identity, inequality and ranking survives."],
+        ["Entropy is best described as which statistic of the surprisal?", ["Its maximum", "Its expected value", "Its median", "Its variance"], 1, "H(X) = E[I(x)] = sum_x p(x) log_2(1/p(x)). Entropy is the average surprisal."],
+        ["Under the most efficient code, how many bits are assigned to the message <code>Y = k</code>?", ["P(Y = k)", "1/P(Y = k)", "-log_2 P(Y = k)", "log_2 K, where K is the number of classes"], 2, "Slide 18 states this directly, and taking its expectation under P is exactly the entropy formula."],
+        ["The compression framing asks for what?", ["The longest representation that preserves all information", "A fixed-length code regardless of probabilities", "A representation that discards rare events", "The shortest representation that preserves all information"], 3, "We want the shortest lossless representation, which is equivalent to asking how much information the sequence actually contains."],
+        ["Of two days with weather distributions {75% sunny, 25% rainy} and {50% sunny, 50% rainy}, which is more uncertain?", ["The 50/50 day", "The 75/25 day", "They are equally uncertain", "Uncertainty cannot be compared across days"], 0, "The balanced day is closer to uniform, and the slide's own summary is that high entropy corresponds to high information or more uncertainty."],
+        ["In the DIKA framing used to motivate the lecture, what is the stated relationship between information and knowledge?", ["Information and knowledge are synonyms", "Information is processed data, and knowledge is information modeled to be useful", "Knowledge is raw data before processing", "Knowledge precedes information in the chain"], 1, "The chain is Data to Information to Knowledge to Action, and you need information before you can get knowledge."],
+      ]},
+      { title: "Entropy: definition and computation", questions: [
+        ["Which expression is the entropy of a discrete random variable?", ["sum_x p(x) log_2 p(x)", "-sum_x log_2 p(x)", "-sum_x p(x) log_2 p(x)", "sum_x 1/p(x)"], 2, "H(X) = -sum p log_2 p. The leading minus sign keeps the result non-negative, since log of a probability is at most 0."],
+        ["Why are <code>sum_x p(x) log_2(1/p(x))</code> and <code>-sum_x p(x) log_2 p(x)</code> the same thing?", ["They are not equal in general", "Because the log is base 2", "Because probabilities sum to 1", "Because log(1/a) = -log a"], 3, "The professor derives this explicitly by pulling the reciprocal out of the log as a factor of -1."],
+        ["What is the entropy of a fair coin?", ["1 bit", "0.5 bits", "0 bits", "2 bits"], 0, "H = -(0.5 log_2 0.5 + 0.5 log_2 0.5) = 1 bit, which is also log_2 k for k = 2."],
+        ["What is the entropy of <code>[3/4, 1/4]</code>, to three decimals?", ["0.500", "0.811", "1.000", "1.585"], 1, "H = (3/4)log_2(4/3) + (1/4)log_2 4 = 0.311 + 0.5 = 0.811 bits. This is the [cat, cat, cat, dog] example."],
+        ["What is the entropy of a fair six-sided die?", ["1 bit", "6 bits", "log_2 6, about 2.585 bits", "1/6 bit"], 2, "Every uniform distribution over k outcomes has entropy log_2 k, so H = log_2 6 = 2.585."],
+        ["What is the entropy of a uniform distribution over <code>k</code> outcomes?", ["k", "1/k", "k log_2 k", "log_2 k"], 3, "Each term contributes (1/k)log_2 k, and there are k of them."],
+        ["What is the entropy of a distribution that puts all its mass on one outcome?", ["0", "1", "log_2 k", "It is undefined"], 0, "A deterministic variable has no uncertainty. This is the head=0, tail=6 row of the slide 20 table."],
+        ["From the slide 20 table, what is the entropy when 1 head and 5 tails are observed in 6 flips?", ["0", "0.65", "0.92", "1.0"], 1, "H(1/6, 5/6) = 0.65 bits."],
+        ["From the same table, what is the entropy when 2 heads and 4 tails are observed?", ["0.65", "0.82", "0.92", "1.0"], 2, "H(2/6, 4/6) = 0.918, which the slide rounds to 0.92."],
+        ["What convention does information theory adopt for the term <code>0 log 0</code>?", ["It is undefined, so the entropy is undefined", "It equals negative infinity", "It equals 1", "It equals 0"], 3, "Zero-probability outcomes contribute nothing, which is what makes the head=0 row give entropy exactly 0."],
+        ["Why is <code>0 log 0 = 0</code> a principled convention rather than a fudge?", ["Because the limit of p log(1/p) as p approaches 0 is 0", "Because probabilities must be positive", "Because log 0 is defined as 0", "Because the sum is finite anyway"], 0, "The linear factor p shrinks faster than log(1/p) grows. The professor annotates this on the slide by writing 0.000001 and sketching the log curve."],
+        ["What is the entropy of <code>[0.5, 0.25, 0.25]</code>?", ["1.0 bits", "1.5 bits", "1.585 bits", "2.0 bits"], 1, "0.5(1) + 0.25(2) + 0.25(2) = 1.5 bits. Note it is below log_2 3 = 1.585 because the distribution is not uniform."],
+        ["Where does the binary entropy curve reach its maximum?", ["At p = 0", "At p = 0.25", "At p = 0.5", "At p = 1"], 2, "The curve is symmetric and peaks at the balanced point, falling to 0 at both ends."],
+        ["What is the value of the binary entropy curve at its peak?", ["0.5", "log_2 e", "2", "1"], 3, "The peak equals log_2 k for k = 2, which is 1. The professor annotates exactly this at the top of the curve."],
+        ["The professor notes that <code>log_2 k</code> goes to infinity as <code>k</code> grows. What does this establish?", ["Entropy is bounded above only for a fixed alphabet size; it is unbounded in general", "Entropy is bounded above by 1 bit", "Entropy is always infinite", "Entropy decreases as the alphabet grows"], 0, "For fixed k the bound is log_2 k, but nothing bounds entropy across all distributions."],
+        ["A statement claims 'entropy can never exceed 1 bit.' Is it correct?", ["Yes, always", "Only for binary variables", "Only for continuous variables", "Yes, because probabilities are at most 1"], 1, "The 1-bit ceiling is log_2 2 and applies only when there are two outcomes. A fair die already reaches 2.585 bits."],
+        ["Which reading of <code>H(Y)</code> did the professor give alongside the uncertainty reading?", ["The variance of Y", "The number of distinct values Y can take", "The expected number of bits to encode a randomly drawn value of Y under the most efficient code", "The probability of the most likely value of Y"], 2, "The coding interpretation is why entropy is defined the way it is, and the take-home slide lists it explicitly."],
+        ["Which quantity does <code>E[g(x)] = sum_x p(x) g(x)</code> become when <code>g(x) = log_2(1/p(x))</code>?", ["The variance of X", "The mutual information of X with itself", "The cross entropy of X", "The entropy of X"], 3, "This is the professor's whiteboard derivation: entropy is just the expectation formula applied to surprisal."],
+      ]},
+      { title: "Properties of entropy (slide 21)", questions: [
+        ["Property 2 says entropy is invariant with respect to permutation of its inputs. What does this imply?", ["Entropy depends only on the multiset of probabilities, not on which outcome has which", "Entropy depends on the order in which outcomes are listed", "Entropy is always zero for permuted distributions", "Entropy changes sign under permutation"], 0, "Relabeling or reordering outcomes cannot change H, because the formula sums over probabilities without reference to labels."],
+        ["Distribution A is uniform over {1,2,3,4}; distribution B is uniform over {10,20,30,40}; distribution C is uniform over {cat, dog, fish, bird}. Rank their entropies.", ["A > B > C", "All three are equal at 2 bits", "C > B > A", "They cannot be compared"], 1, "Entropy is a function of the probability vector alone. Outcome values, labels, spacing and ordering are all irrelevant."],
+        ["Does entropy depend on the mean or variance of a random variable?", ["Yes, entropy increases with variance", "Yes, entropy equals the log of the variance", "No — entropy has no notion of the outcome values at all", "Only for continuous variables"], 2, "This follows directly from permutation invariance. Two variables with the same probability vector have the same entropy no matter what values they take."],
+        ["What is the exact condition for equality in <code>H(P) <= log_2 k</code>?", ["P must be deterministic", "P must have at least one zero entry", "k must equal 2", "P must be uniform, p_i = 1/k for all i"], 3, "Property 4 states the bound with equality iff the distribution is uniform. Uniform is the maximum-entropy distribution for a fixed alphabet."],
+        ["Property 5 says the further P is from uniform, the lower the entropy. Which pair correctly orders two distributions by this rule?", ["[0.34, 0.33, 0.33] has higher entropy than [0.98, 0.01, 0.01]", "[0.98, 0.01, 0.01] has higher entropy than [0.34, 0.33, 0.33]", "They have equal entropy", "Entropy cannot be compared without knowing the outcome values"], 0, "The near-uniform distribution sits near log_2 3 = 1.585; the peaked one is close to 0."],
+        ["Property 3 states that for any other distribution Q, <code>sum p_i log(1/p_i) < sum p_i log(1/q_i)</code>. What is the right-hand side?", ["The entropy of Q", "The cross entropy H(P,Q)", "The KL divergence from P to Q", "The mutual information between P and Q"], 1, "Cross entropy is not named until ten slides later, but property 3 is already stating it. The professor labels p as the actual pdf and q as the predicted pdf."],
+        ["Property 3 is equivalent to which later result?", ["The chain rule for entropy", "Mutual information is symmetric", "KL[P||Q] >= 0, with equality iff P = Q", "Joint entropy is subadditive"], 2, "Rearranging property 3 gives H(P,Q) - H(P) > 0, and that difference is exactly the KL divergence."],
+        ["The professor's margin proof of property 3 reduces it to showing what?", ["q_i > p_i for all i", "sum p_i = 1", "log a - log b = log(ab)", "sum p_i log(q_i/p_i) < 0"], 3, "Using log a - log b = log(a/b), the difference of the two sums collapses to sum p_i log(q_i/p_i), which is -KL[P||Q] and therefore negative."],
+        ["Property 3 read as a coding statement says what?", ["A code built for the wrong distribution always costs strictly more bits", "A code built for the wrong distribution sometimes costs fewer bits", "All codes cost the same on average", "Only uniform distributions have optimal codes"], 0, "The optimal code for P is optimal, so any other code is a valid but worse code for the same data. The excess is exactly KL."],
+        ["Does adding an outcome with probability zero change the entropy?", ["Yes, it increases entropy", "No, because 0 log 0 = 0", "Yes, it decreases entropy", "It makes entropy undefined"], 1, "This means the k in H <= log_2 k should be read as the number of outcomes with non-zero probability."],
+        ["What is the minimum possible value of the entropy of a discrete random variable, and when is it attained?", ["1, attained for any binary variable", "0, attained when the variable is uniform", "0, attained when the variable is deterministic", "There is no minimum"], 2, "H >= 0 is property 1, and equality happens exactly when all the mass sits on one outcome."],
+        ["Which distribution over 3 outcomes has the highest entropy?", ["[1, 0, 0]", "[0.8, 0.1, 0.1]", "[0.5, 0.3, 0.2]", "[1/3, 1/3, 1/3]"], 3, "Uniform maximizes entropy for a fixed number of outcomes, giving log_2 3 = 1.585 bits."],
+        ["The professor sketches three densities numbered 1 to 3, from flat to peaked. Which carries the most entropy?", ["The flattest one", "The most peaked one", "The middle one, always", "They all carry the same entropy"], 0, "Flat means close to uniform, which means maximal uncertainty and therefore maximal entropy."],
+        ["In his multi-class example, <code>P(x) = [1, 0, 0]</code> over cat/dog/fish. What is H(P)?", ["1", "0", "log_2 3", "Undefined, because of the zeros"], 1, "One certain class means zero uncertainty. The zeros contribute nothing by the 0 log 0 convention."],
+      ]},
+      { title: "Joint entropy", questions: [
+        ["What does joint entropy <code>H(X,Y)</code> sum over?", ["The marginal probabilities of X only", "The marginal probabilities of X and Y separately", "Every cell of the joint distribution, treating (x,y) as one outcome", "Only the diagonal cells"], 2, "H(X,Y) = sum over x,y of p(x,y) log(1/p(x,y)). For the deck's weather table that is all six cells, not the margins."],
+        ["For the deck's weather table, <code>H(T) = 1.48548</code> and <code>H(M) = 0.970951</code>. What is <code>H(T,M)</code>?", ["0.51453", "1.48548", "2.456431", "2.32193"], 3, "The joint entropy of H(0.1, 0.4, 0.1, 0.2, 0.1, 0.1) is 2.32193, which is strictly below the sum of the marginals, 2.456431."],
+        ["Which inequality does the deck emphasize with three exclamation marks?", ["H(T,M) <= H(T) + H(M)", "H(T,M) >= H(T) + H(M)", "H(T,M) = H(T) H(M)", "H(T,M) <= H(T)"], 0, "Joint entropy is subadditive. Knowing both variables together is never more uncertain than treating them as unrelated."],
+        ["When does <code>H(X,Y) = H(X) + H(Y)</code> hold exactly?", ["Always", "When X and Y are independent", "When X and Y are identically distributed", "When X and Y have the same entropy"], 1, "Independence makes p(x,y) = p(x)p(y), which splits the log into a sum. The gap in the general case is the mutual information."],
+        ["What is the size of the gap <code>H(X) + H(Y) - H(X,Y)</code>?", ["Always zero", "The conditional entropy H(Y|X)", "The mutual information I(X,Y)", "The KL divergence between X and Y"], 2, "This is one of the three equivalent definitions of mutual information, and it makes the non-negativity of I equivalent to subadditivity."],
+        ["Which form of the chain rule for entropy is correct?", ["H(X,Y) = H(X)H(Y|X)", "H(X,Y) = H(X) + H(Y) - H(X|Y)", "H(X,Y) = H(X|Y) + H(Y|X)", "H(X,Y) = H(Y|X) + H(X) = H(X|Y) + H(Y)"], 3, "It mirrors the probability chain rule P(x,y) = P(y|x)P(x) = P(x|y)P(y), which the professor writes directly above it on slide 16."],
+        ["Is joint entropy symmetric?", ["Yes, H(X,Y) = H(Y,X)", "No, H(X,Y) is generally different from H(Y,X)", "Only if X and Y are independent", "Only if X and Y have the same alphabet"], 0, "Swapping the roles relabels the same set of cells, so the sum is unchanged. Note that cross entropy, written with the same comma notation, is NOT symmetric."],
+        ["Which lower bound holds for joint entropy?", ["H(X,Y) <= min(H(X), H(Y))", "H(X,Y) >= max(H(X), H(Y))", "H(X,Y) = H(X) always", "H(X,Y) can be less than H(X)"], 1, "H(X,Y) = H(X) + H(Y|X) and H(Y|X) >= 0, so the joint is at least as large as either marginal."],
+        ["If <code>H(X,Y) = H(X)</code>, what follows?", ["X and Y are independent", "Y has zero entropy", "H(Y|X) = 0, so Y is a deterministic function of X", "X and Y are identically distributed"], 2, "From the chain rule, H(X,Y) - H(X) = H(Y|X) = 0. Y adds nothing once X is known, which means Y is determined by X."],
+        ["The professor writes <code>P(a,b) = P(a|b)P(b) = P(a)P(b)</code> with a note under the second equality. What is that note?", ["Always true", "a and b identically distributed", "a and b disjoint", "a and b independent"], 3, "Only the first equality is general. The second requires independence, and that is exactly the case where joint entropy becomes additive."],
+        ["Given <code>H(X) = 3</code>, <code>H(Y) = 2</code>, <code>H(X,Y) = 4</code>, are X and Y independent?", ["No, because H(X,Y) is strictly less than H(X) + H(Y)", "Yes, because 4 is less than 5", "Yes, because H(X,Y) is greater than both marginals", "There is not enough information"], 0, "Independence would require H(X,Y) = 5 exactly. The shortfall of 1 is the mutual information."],
+        ["Why is the joint entropy of the weather table not simply <code>H(0.3, 0.5, 0.2) + H(0.6, 0.4)</code>?", ["Because the margins are not probabilities", "Because that sum would only equal the joint entropy under independence, and the table is not independent", "Because the table has six cells rather than five", "Because joint entropy uses a different logarithm base"], 1, "That sum is 2.456431. The true joint entropy is 2.32193, and the 0.1345 difference is the mutual information."],
+      ]},
+      { title: "Conditional entropy", questions: [
+        ["What does the average conditional entropy <code>H(Y|X)</code> equal?", ["H(Y|X = x) for the most likely x", "sum_x H(Y|X = x)", "sum_x p(x) H(Y|X = x)", "H(X,Y) - H(Y)"], 2, "It is the weighted average of the per-value conditional entropies, with weights from the marginal of the conditioning variable."],
+        ["In <code>H(T|M) = sum_m P(M = m) H(T|M = m)</code>, where do the weights come from?", ["The marginal of T", "They are uniform by definition", "The joint distribution cells", "The marginal of M, the conditioning variable"], 3, "For H(T|M) the weights are P(M = low) = 0.6 and P(M = high) = 0.4. Using P(T) here produces a plausible-looking wrong answer."],
+        ["What is the alternative name the professor gives to average conditional entropy?", ["Equivocation", "Surprisal", "Perplexity", "Divergence"], 0, "He labels it equivocation on both conditional-entropy slides."],
+        ["For the weather table, <code>H(T|M = low) = 1.25163</code> and <code>H(T|M = high) = 1.5</code>. What is <code>H(T|M)</code>?", ["1.375630", "1.350978", "1.485480", "2.751630"], 1, "0.6(1.25163) + 0.4(1.5) = 1.350978. A plain average of the two numbers would give 1.37563, which is wrong."],
+        ["Given <code>H(T) = 1.48548</code> and <code>H(T|M = high) = 1.5</code>, what does this show?", ["An arithmetic error, since conditioning cannot increase entropy", "That T and M are independent", "That observing a specific value can increase uncertainty, even though the average cannot", "That entropy is not well defined for conditional distributions"], 2, "Conditioning reduces entropy only on average. Learning that humidity is high made temperature strictly more uncertain, and only the weighted average 1.350978 is forced below H(T)."],
+        ["Which statement is correct?", ["H(Y|X = x) <= H(Y) for every x", "H(Y|X = x) = H(Y) for every x", "H(Y|X) >= H(Y) always", "H(Y|X) <= H(Y), where H(Y|X) is the average"], 3, "The inequality is an average statement. The per-value quantity has no such bound, as the weather table demonstrates."],
+        ["What is <code>H(M|T)</code> for the weather table, given the conditionals H(1/3,2/3), H(4/5,1/5) and H(1/2,1/2)?", ["0.836453", "0.880075", "0.970951", "1.350978"], 0, "0.3(0.918296) + 0.5(0.721928) + 0.2(1.0) = 0.8364528, weighted by the marginal of T."],
+        ["Is <code>H(Y|X) = H(X|Y)</code> in general?", ["Yes, conditional entropy is symmetric", "No — for the weather table H(T|M) = 1.350978 while H(M|T) = 0.836453", "Yes, whenever X and Y are dependent", "Only when both have the same number of outcomes"], 1, "Conditional entropy is not symmetric. What is symmetric is mutual information, which is why both difference routes give the same 0.1345."],
+        ["When building the table for <code>P(T = t | M = m)</code>, which direction is normalized?", ["Each column sums to 1", "The whole table sums to 1", "Each row sums to 1", "Nothing is normalized"], 2, "Conditioning on M means each humidity row becomes a distribution over temperature. For P(M = m | T = t) it is the columns that sum to 1 instead."],
+        ["What does <code>H(Y|X) = 0</code> mean?", ["X and Y are independent", "Y has a uniform distribution", "X and Y are the same random variable", "Y is a deterministic function of X"], 3, "Once X is known there is no residual uncertainty in Y. A many-to-one function satisfies this asymmetrically, with H(X|Y) still positive."],
+        ["What does <code>H(Y|X) = H(Y)</code> mean?", ["X and Y are independent", "Y is a function of X", "X has zero entropy", "H(X,Y) = H(X)"], 0, "No reduction in uncertainty means I(X,Y) = 0, which happens exactly under independence."],
+        ["In the mixed continuous/discrete form of conditional entropy, which operation applies to which variable?", ["An integral over y, a sum over x", "A sum over y (discrete), an integral over x (continuous)", "Integrals over both", "Sums over both"], 1, "Slide 26 writes H(Y|X) as minus the integral over x of p(x) times the sum over the K classes of p(y=k|x) log_2 p(y=k|x)."],
+        ["If <code>H(X) = 3</code>, <code>H(Y) = 2</code> and <code>H(X,Y) = 4</code>, what is <code>H(X|Y)</code>?", ["1", "3", "2", "4"], 2, "From the chain rule H(X|Y) = H(X,Y) - H(Y) = 4 - 2 = 2. Equivalently H(X) - I = 3 - 1 = 2."],
+        ["You compute <code>H(T|M) = 1.42</code> for the weather table. How do you know without redoing the arithmetic that it is wrong?", ["It exceeds H(T) = 1.48548", "It is not between the two per-value entropies", "It is larger than H(M)", "It fails H(T|M) = H(T,M) - H(M) = 2.32193 - 0.970951 = 1.350979"], 3, "The chain rule pins the value exactly. Note that 1.42 does not violate H(T|M) <= H(T), so the ceiling check alone would not have caught it."],
+      ]},
+      { title: "Mutual information and information gain", questions: [
+        ["What does mutual information quantify?", ["The reduction in uncertainty in Y after observing X", "The distance between two distributions", "The total uncertainty in the pair (X,Y)", "The number of bits needed to encode X"], 0, "I(X_i, Y) = H(Y) - H(Y|X_i). The more the reduction in entropy, the more informative the feature."],
+        ["Which of these is NOT an equivalent expression for <code>I(X,Y)</code>?", ["H(Y) - H(Y|X)", "H(X|Y) + H(Y|X)", "H(X) + H(Y) - H(X,Y)", "H(X) - H(X|Y)"], 1, "The first three are equivalent. The last is the union minus the overlap, which equals H(X,Y) - I(X,Y), not I(X,Y)."],
+        ["Is mutual information symmetric?", ["No, I(X,Y) generally differs from I(Y,X)", "Only under independence", "Yes, I(X,Y) = I(Y,X)", "Only when H(X) = H(Y)"], 2, "Slide 28 lists symmetry as a property, and the form with p(x,y)/(p(x)p(y)) in the log makes it obvious."],
+        ["What is the sign of mutual information?", ["It can be positive or negative", "It is always negative", "It is always strictly positive", "It is always non-negative"], 3, "I >= 0, which is the same statement as 'conditioning reduces entropy on average' and as joint-entropy subadditivity."],
+        ["When is <code>I(X,Y) = 0</code>?", ["If and only if X and Y are independent", "Whenever X and Y are uncorrelated", "Whenever H(X) = H(Y)", "Only when both variables are deterministic"], 0, "Slide 28 states it as an iff. This is strictly stronger than zero correlation, which only rules out linear relationships."],
+        ["A variable X is uncorrelated with Y. Does that imply <code>I(X,Y) = 0</code>?", ["Yes, they are the same condition", "No — zero correlation rules out only linear dependence, while zero mutual information rules out all dependence", "Yes, but only for Gaussian variables in general", "No, correlation is undefined for discrete variables"], 1, "This is the information-theoretic sharpening of the uncorrelated-does-not-imply-independent trap from the probability deck."],
+        ["What is <code>I(X,X)</code>?", ["0", "1", "H(X)", "2H(X)"], 2, "I(X,X) = H(X) - H(X|X) = H(X) - 0 = H(X). A variable tells you everything about itself."],
+        ["For the weather table, what is <code>I(T,M)</code>?", ["1.350978", "0.514530", "0.836453", "0.134502"], 3, "H(T) - H(T|M) = 1.48548 - 1.350978 = 0.134502, and H(M) - H(M|T) = 0.970951 - 0.836453 gives the same number from the other side."],
+        ["Someone reports <code>I(X,Y) = 2.5</code> when <code>H(X) = 3</code> and <code>H(Y) = 2</code>. Why is that impossible without computing anything?", ["I(X,Y) <= min(H(X), H(Y)) = 2", "Mutual information cannot exceed 1", "Mutual information must be an integer", "I(X,Y) must equal H(X) - H(Y)"], 0, "From I = H(Y) - H(Y|X) and H(Y|X) >= 0, mutual information can never exceed the entropy of the smaller variable."],
+        ["Information gain, as used to choose a decision-tree split, is which quantity?", ["Cross entropy between parent and child", "Mutual information between the split feature and the label", "The KL divergence between the two children", "The joint entropy of the children"], 1, "Parent entropy is H(Y), the weighted child entropies are H(Y|X), and the difference is I(X,Y)."],
+        ["In the professor's annotated tree example, a parent with 50 cats and 50 dogs splits into children of size 30 and 70. What plays the role of <code>H(Y|X)</code>?", ["The parent's entropy", "The sum of the two children's entropies", "The weighted average of the two children's entropies", "The entropy of the split feature"], 2, "The weights are the child proportions, which is the same sum_x p(x) H(Y|X = x) structure as everywhere else."],
+        ["Can splitting a decision-tree node ever increase the expected entropy of the label?", ["Yes, for poorly chosen features", "Only if the feature is continuous", "Yes, whenever the children are unbalanced", "No, because information gain is mutual information and I >= 0"], 3, "Gain is never negative, which is exactly why information gain alone cannot tell you when to stop splitting."],
+        ["Feature X_2 has information gain 0.0 at a given node. Does that mean X_2 is independent of Y?", ["No — the gain is conditional on the data that reached that node, so X_2 may still be dependent on Y globally", "Yes, zero mutual information implies independence", "Yes, but only for binary features", "No, because information gain and mutual information are different quantities"], 0, "Only when the gain is computed on the full unconditioned distribution does I = 0 imply independence. Deeper in the tree, X_2 may become useful."],
+        ["In Olah's bar diagram, what is the region where the <code>H(X)</code> and <code>H(Y)</code> bars overlap?", ["H(X,Y)", "I(X,Y)", "H(X|Y)", "The KL divergence"], 1, "The overlap is the mutual information, and the two non-overlapping ends are H(X|Y) and H(Y|X)."],
+        ["Reading the same bar diagram, what is the full width of the top bar?", ["H(X)", "H(Y)", "H(X,Y)", "I(X,Y)"], 2, "The joint entropy spans the whole thing, and the diagram shows it split as H(X) + H(Y|X) and alternately as H(X|Y) + H(Y)."],
+        ["Can <code>H(Y) - H(Y|X = x)</code> be negative for a particular value <code>x</code>?", ["No, it is a mutual information and must be non-negative", "Only for continuous variables", "No, entropy differences are always positive", "Yes — only the p(x)-weighted average is forced to be non-negative"], 3, "The weather table gives exactly this: H(T) - H(T|M = high) = 1.48548 - 1.5 is negative. Mutual information is non-negative because it is an expectation."],
+      ]},
+      { title: "Cross entropy and KL divergence", questions: [
+        ["What does cross entropy <code>H(P,Q)</code> measure?", ["The expected number of bits paid when the wrong distribution Q is assumed while the data actually follows P", "The uncertainty in the pair of variables P and Q", "The distance between P and Q, symmetrically", "The reduction in uncertainty about P after observing Q"], 0, "This is the slide's own wording. P is the actual pdf and Q is the predicted one."],
+        ["Which formula is the cross entropy?", ["-sum_x q(x) log p(x)", "-sum_x p(x) log q(x)", "sum_x p(x) log(p(x)/q(x))", "-sum_x p(x) log p(x)"], 1, "Weights come from the true distribution P; the log is taken of the assumed distribution Q. Swapping them gives H(Q,P), a different number."],
+        ["Which identity connects cross entropy, entropy and KL divergence?", ["H(P,Q) = H(P) - KL[P||Q]", "H(P,Q) = KL[P||Q] - H(P)", "H(P,Q) = H(P) + KL[P||Q]", "H(P,Q) = H(P) KL[P||Q]"], 2, "Cross entropy is the true cost plus the excess. Equivalently KL[P||Q] = H(P,Q) - H(P)."],
+        ["What does KL divergence represent in coding terms?", ["The total bits needed to encode P", "The average code length under Q", "The bits saved by using Q", "The excess bits paid by encoding according to Q instead of P"], 3, "The slide states it as excess cost in bits, which is why it is the gap between cross entropy and entropy."],
+        ["What is the sign of KL divergence, and when is it zero?", ["It is non-negative; zero if and only if P = Q", "It can be negative; zero when P and Q have the same entropy", "It is always strictly positive", "It is non-negative; zero whenever P and Q share a support"], 0, "Equal entropy is not enough. Only P = Q makes the divergence vanish."],
+        ["The slide asks whether the log function is concave or convex. Which is it, and why does it matter?", ["Convex, which gives the Jensen step E[log Z] >= log E[Z]", "Concave, which gives the Jensen step E[log Z] <= log E[Z]", "Neither, log is linear", "Concave, but Jensen's inequality is not used in the proof"], 1, "Concavity makes the inequality run in the direction that yields -KL <= 0, hence KL >= 0."],
+        ["In the non-negativity proof, what does <code>log sum_s P(s) (Q(s)/P(s))</code> simplify to?", ["H(P)", "log 0, which is undefined", "log 1 = 0", "KL[Q||P]"], 2, "The P(s) cancels, leaving log of the sum of Q(s), which is log 1 = 0 because Q is a distribution."],
+        ["Is KL divergence symmetric?", ["Yes, KL[P||Q] = KL[Q||P]", "Only when P and Q have equal entropy", "Yes, but only when both are discrete", "No — the two orderings answer different questions and can differ substantially"], 3, "For P = [0.5, 0.5] and Q = [0.9, 0.1], KL[P||Q] = 0.737 while KL[Q||P] = 0.531."],
+        ["Is KL divergence a distance metric?", ["No — it is asymmetric and fails the triangle inequality, which is why the slide calls it a KIND OF distance", "Yes, it satisfies all metric axioms", "Yes, once you symmetrize the logarithm", "No, because it can be negative"], 0, "It is a directed excess-bits cost. It is also not a similarity measure; larger means further apart, not more alike."],
+        ["For <code>P = [0.5, 0.5]</code> and <code>Q = [0.9, 0.1]</code>, what is <code>H(P,Q)</code>?", ["1.000", "1.737", "0.469", "0.737"], 1, "-(0.5 log_2 0.9 + 0.5 log_2 0.1) = 0.5(0.152) + 0.5(3.322) = 1.737 bits."],
+        ["With the same P and Q, what is <code>KL[P||Q]</code>?", ["0.469", "0.531", "0.737", "1.737"], 2, "KL = H(P,Q) - H(P) = 1.737 - 1 = 0.737 bits."],
+        ["The professor circles the cross entropy with 'Min' and crosses out the <code>H(P)</code> term. What is the point?", ["H(P) is zero for every problem", "H(P) must be estimated before training can start", "Cross entropy and KL are numerically identical", "H(P) does not depend on Q, so minimizing cross entropy over the model's predictions is the same optimization as minimizing KL"], 3, "The label distribution is fixed during training, so the constant drops out of the argmin."],
+        ["Minimizing cross entropy and minimizing KL are the same optimization. Are they the same number?", ["No — they differ by the constant H(P)", "Yes, always", "No, they differ by a factor of ln 2", "Yes, provided the labels are one-hot"], 0, "They share an argmin but not a value. A question asking for the value at the optimum has two different answers."],
+        ["What is the minimum achievable value of the cross-entropy loss in general?", ["0, always", "H(P), the entropy of the true label distribution", "1 bit", "KL[P||Q]"], 1, "Cross entropy bottoms out at H(P) because the residual KL term is the only part a model can drive to zero."],
+        ["For one-hot labels, what is the minimum achievable cross-entropy loss, and why?", ["H(P), which is nonzero", "1 bit, the binary entropy maximum", "Zero, because one-hot labels are deterministic so H(P) = 0", "It depends on the number of classes"], 2, "With soft labels such as [0.7, 0.3], the loss could never fall below H(P) = 0.881 regardless of model quality."],
+        ["<code>KL[P||Q] = 0</code>. What follows about <code>H(P,Q)</code>?", ["H(P,Q) = 0", "Nothing can be concluded", "H(P,Q) = H(P) + H(Q)", "H(P,Q) = H(P) = H(Q)"], 3, "KL is zero iff P = Q, so cross entropy collapses to ordinary entropy."],
+        ["Which quantity is strictly larger for any <code>Q</code> not equal to <code>P</code>?", ["H(P,Q) is larger than H(P)", "H(P) is larger than H(P,Q)", "They are equal", "The comparison depends on the log base"], 0, "This is Gibbs' inequality, and its strictness is the whole content of 'entropy is the best you can do'."],
+        ["Where does the deck say the cross-entropy material will be developed further?", ["In the probability and statistics lecture", "In the optimization lecture", "In the SVM lecture", "It is not revisited"], 1, "The outline slide before the cross-entropy section carries his note: let us work on this subject in our optimization lecture."],
+      ]},
+      { title: "Relationships, notation traps, and mixed reasoning", questions: [
+        ["<code>H(P,Q)</code> and <code>H(X,Y)</code> use identical notation. What is the difference?", ["They are the same quantity", "H(P,Q) is joint entropy and H(X,Y) is cross entropy", "H(X,Y) is joint entropy of two random variables under one joint distribution; H(P,Q) is cross entropy between two distributions over the same variable", "The comma means the same thing in both, only the letters differ"], 2, "Read the arguments, not the comma. Joint entropy is symmetric; cross entropy is not."],
+        ["Which of these is symmetric in its two arguments?", ["Cross entropy H(P,Q)", "KL divergence KL[P||Q]", "Conditional entropy H(Y|X)", "Joint entropy H(X,Y)"], 3, "Joint entropy and mutual information are symmetric. Cross entropy, KL divergence and conditional entropy are not."],
+        ["<code>I(X)</code> on one slide and <code>I(X_i, Y)</code> on another mean what, respectively?", ["Self-information (surprisal) of an outcome, and mutual information between two variables", "Both mean mutual information", "Both mean self-information", "Information gain and entropy"], 0, "The same letter carries two meanings in the same deck. One lowercase argument means surprisal; two uppercase variables mean mutual information."],
+        ["If <code>H(Y|X = x_0) > H(Y)</code> for some value <code>x_0</code>, what can you conclude?", ["Nothing, this is always possible even under independence", "X and Y must be dependent", "An arithmetic error has been made", "Y must be deterministic"], 1, "Under independence p(y|x) = p(y) for every x, so every per-value conditional entropy would equal H(Y) exactly. Any deviation in either direction proves dependence."],
+        ["<code>X</code> is uniform over 8 outcomes and <code>Y = X mod 2</code>. What is <code>I(X,Y)</code>?", ["0", "2", "1", "3"], 2, "H(Y) = 1 since Y is a fair bit, and H(Y|X) = 0 since Y is determined by X, so I = 1 - 0 = 1."],
+        ["For the same X and Y, what is <code>H(X|Y)</code>?", ["0", "1", "3", "2"], 3, "H(X|Y) = H(X) - I(X,Y) = 3 - 1 = 2. Knowing the parity leaves 4 equally likely values."],
+        ["For the same X and Y, what is <code>H(X,Y)</code>?", ["3", "2", "1", "4"], 0, "H(X,Y) = H(X) + H(Y|X) = 3 + 0 = 3. The joint equals H(X) because Y adds nothing once X is known."],
+        ["<code>H(Y|X) = 0</code> but <code>H(X|Y) > 0</code>. What does this describe?", ["An impossible situation", "Y is a many-to-one deterministic function of X", "X and Y are independent", "X and Y are the same variable"], 1, "Determinism in one direction does not imply it in the other. Y = X mod 2 is exactly this case."],
+        ["Does <code>H(X,Y) = H(X) + H(Y)</code> ever hold while <code>I(X,Y) > 0</code>?", ["Yes, for dependent variables", "Yes, if X and Y have equal entropy", "No — the two statements are the same fact rearranged, and both mean independence", "Only for continuous variables"], 2, "I(X,Y) = H(X) + H(Y) - H(X,Y), so additivity and zero mutual information are one condition wearing two hats."],
+        ["Which chain of reasoning correctly derives <code>I(X,Y) >= 0</code> from subadditivity?", ["From H(X,Y) >= H(X) + H(Y)", "From H(X,Y) >= max(H(X), H(Y))", "From H(Y|X) >= H(Y)", "From H(X,Y) <= H(X) + H(Y), so H(X) + H(Y) - H(X,Y) >= 0"], 3, "Subadditivity, conditioning-reduces-entropy and non-negative mutual information are three phrasings of one inequality."],
+        ["A quiz gives all answers in nats rather than bits. What changes?", ["Only the numeric values; every identity, inequality and ranking is unaffected", "Which entropy is larger between two distributions", "The sign of the KL divergence", "Whether mutual information is symmetric"], 0, "Base change is a uniform multiplicative constant, so convert rather than re-deriving."],
+        ["Which quantity is NOT guaranteed to be non-negative for discrete variables?", ["H(X)", "H(Y) - H(Y|X = x) for a single x", "I(X,Y)", "H(Y|X)"], 1, "The first three are always non-negative. The per-value entropy change can be negative, as H(T) - H(T|M = high) shows."],
+        ["Which pair of quantities differ by exactly <code>H(P)</code>?", ["Joint entropy and conditional entropy", "Mutual information and conditional entropy", "Cross entropy and KL divergence", "Entropy and joint entropy"], 2, "H(P,Q) = H(P) + KL[P||Q], which is why they share an argmin but not a value."],
+        ["Which pair of quantities differ by exactly <code>I(X,Y)</code>?", ["H(X) and H(X,Y)", "H(P,Q) and H(P)", "H(X,Y) and H(X)", "H(Y) and H(Y|X)"], 3, "By definition I(X,Y) = H(Y) - H(Y|X). The gap H(X,Y) - H(X) is H(Y|X) instead."],
+        ["The take-home slide lists three topic groups. What does it emphasize for two of the three?", ["The relationships between the quantities", "The formulas", "The computational complexity", "The historical origin"], 0, "Both the joint/conditional/mutual bullet and the cross-entropy/KL bullet call out the relationships explicitly, not the definitions."],
+        ["Which single diagram lets you re-derive the chain rule, subadditivity and all three forms of mutual information?", ["The binary entropy curve", "Olah's stacked bar diagram of H(X,Y), H(X), H(Y), H(X|Y), H(Y|X) and I(X,Y)", "The weather joint-probability table", "The log-concavity sketch used for Jensen's inequality"], 1, "If you can redraw the bars from memory you can read every identity in the deck off them."],
+      ]},
+    ];
+
+    const letters = ["A", "B", "C", "D"];
+    const escapeHtml = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    const STORAGE_KEY = "it-mcq-progress-v1";
+    const FILTER_KEY = "it-mcq-filter-v1";
+
+    function loadProgress() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+      catch (e) { return {}; }
+    }
+    function saveProgress(progress) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+      catch (e) { /* localStorage unavailable — progress just won't persist */ }
+    }
+    function loadFilter() {
+      try { return localStorage.getItem(FILTER_KEY) || "all"; }
+      catch (e) { return "all"; }
+    }
+    function saveFilter(f) {
+      try { localStorage.setItem(FILTER_KEY, f); }
+      catch (e) { /* ignore */ }
+    }
+
+    let progress = loadProgress();
+    let currentFilter = loadFilter();
+
+    let number = 0;
+    const bank = document.getElementById("bank");
+    for (const section of sections) {
+      const wrapper = document.createElement("section");
+      wrapper.className = "topic";
+
+      const heading = document.createElement("h2");
+      heading.textContent = section.title;
+      wrapper.appendChild(heading);
+
+      const list = document.createElement("ol");
+      list.className = "questions";
+      list.start = number + 1;
+
+      for (const [prompt, options, answerIndex, explanation] of section.questions) {
+        number += 1;
+        const n = String(number);
+        const item = document.createElement("li");
+        item.className = "question";
+        item.dataset.n = n;
+        item.innerHTML = `
+          <div class="prompt">${prompt}</div>
+          <ol class="options" type="A">
+            ${options.map(option => `<li>${escapeHtml(option)}</li>`).join("")}
+          </ol>
+          <details>
+            <summary>Show answer</summary>
+            <p class="answer"><strong>${letters[answerIndex]}.</strong> ${escapeHtml(options[answerIndex])}<br>${escapeHtml(explanation)}</p>
+          </details>
+          <div class="track" data-n="${n}">
+            <button class="mark correct" type="button">✓ Got it right</button>
+            <button class="mark wrong" type="button">✗ Got it wrong</button>
+            <span class="status-label"></span>
+          </div>`;
+        list.appendChild(item);
+      }
+      wrapper.appendChild(list);
+      bank.appendChild(wrapper);
+    }
+
+    const totalQuestions = number;
+
+    function updateTrackUI(track) {
+      const n = track.dataset.n;
+      const status = progress[n];
+      track.querySelector(".mark.correct").classList.toggle("active", status === "correct");
+      track.querySelector(".mark.wrong").classList.toggle("active", status === "wrong");
+      const label = track.querySelector(".status-label");
+      label.textContent = status === "correct" ? "Marked correct" : status === "wrong" ? "Marked wrong — review this" : "";
+    }
+
+    function applyFilter() {
+      let anyVisible = 0;
+      bank.querySelectorAll(".topic").forEach(sectionEl => {
+        let visibleInSection = 0;
+        sectionEl.querySelectorAll("li.question").forEach(li => {
+          const status = progress[li.dataset.n];
+          let show = true;
+          if (currentFilter === "wrong") show = status === "wrong";
+          else if (currentFilter === "correct") show = status === "correct";
+          else if (currentFilter === "unanswered") show = !status;
+          li.hidden = !show;
+          if (show) visibleInSection++;
+        });
+        sectionEl.hidden = visibleInSection === 0;
+        anyVisible += visibleInSection;
+      });
+      const emptyState = document.getElementById("emptyState");
+      if (anyVisible === 0) {
+        const messages = {
+          wrong: "Nothing marked wrong yet — nice work, or you haven't graded yourself yet.",
+          correct: "Nothing marked correct yet.",
+          unanswered: "Everything has been marked — nice work.",
+          all: "No questions to show.",
+        };
+        emptyState.textContent = messages[currentFilter] || "No questions to show.";
+        emptyState.hidden = false;
+      } else {
+        emptyState.hidden = true;
+      }
+    }
+
+    function updateCount() {
+      let correct = 0, wrong = 0;
+      for (const n in progress) {
+        if (progress[n] === "correct") correct++;
+        else if (progress[n] === "wrong") wrong++;
+      }
+      const unanswered = totalQuestions - correct - wrong;
+      document.getElementById("count").textContent =
+        `${totalQuestions} questions across ${sections.length} sections · ${correct} correct · ${wrong} wrong · ${unanswered} unanswered`;
+    }
+
+    bank.addEventListener("click", (e) => {
+      const btn = e.target.closest(".mark");
+      if (!btn) return;
+      const track = btn.closest(".track");
+      const n = track.dataset.n;
+      const status = btn.classList.contains("correct") ? "correct" : "wrong";
+      progress[n] = progress[n] === status ? undefined : status;
+      if (progress[n] === undefined) delete progress[n];
+      saveProgress(progress);
+      updateTrackUI(track);
+      applyFilter();
+      updateCount();
+    });
+
+    document.querySelectorAll(".filter").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentFilter = btn.dataset.filter;
+        saveFilter(currentFilter);
+        document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b === btn));
+        applyFilter();
+      });
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      if (!confirm("Clear all saved right/wrong marks for this question bank?")) return;
+      progress = {};
+      saveProgress(progress);
+      bank.querySelectorAll(".track").forEach(updateTrackUI);
+      applyFilter();
+      updateCount();
+    });
+
+    // initial paint
+    bank.querySelectorAll(".track").forEach(updateTrackUI);
+    document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b.dataset.filter === currentFilter));
+    applyFilter();
+    updateCount();
+  </script>
+</body>
+</html>

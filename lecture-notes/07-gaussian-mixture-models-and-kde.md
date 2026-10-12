@@ -7,10 +7,10 @@
 
 | Lecture | Week | Deck | Professor's annotated notes |
 |---|---|---|---|
-| L14 — GMM — Part 1 | W8 (Oct 12-16) | not posted yet — `09-gaussian-mixture.pdf` | not posted yet — `09-gaussian-mixture-note.pdf` |
-| L15 — GMM — Part 2 | W8 (Oct 12-16) | not posted yet — `09-gaussian-mixture.pdf` | not posted yet — `09-gaussian-mixture-note.pdf` |
+| L14 — GMM — Part 1 | W8 (Oct 12-16) | [09-gaussian-mixture.pdf](https://mahdi-roozbahani.github.io/CS46417641-fall2026/course/max/09-gaussian-mixture.pdf) | not posted yet — `09-gaussian-mixture-note.pdf` |
+| L15 — GMM — Part 2 | W8 (Oct 12-16) | [09-gaussian-mixture.pdf](https://mahdi-roozbahani.github.io/CS46417641-fall2026/course/max/09-gaussian-mixture.pdf) | not posted yet — `09-gaussian-mixture-note.pdf` |
 
-The **annotated notes** are the professor's own in-lecture markup of the deck — that's the version to study from. Anything marked *not posted yet* 404s as of Sep 6, 2026; re-check with `../scripts/check-slides.sh`.
+The **annotated notes** are the professor's own in-lecture markup of the deck — that's the version to study from. The deck is live as of Oct 7, 2026; anything marked *not posted yet* still 404s; re-check with `../scripts/check-slides.sh`.
 
 ## Reading
 

@@ -1,13 +1,14 @@
-# Hierarchical Clustering
+# Linear Regression
 
-> **Unsupervised learning** · L13 · Week 7  
-> **Quiz:** Q6 — L13
+> **Supervised learning** · L18, L19 · Week 10, 11  
+> **Quiz:** Q10 — L18, L19
 
 ## Slides & professor's annotated notes
 
 | Lecture | Week | Deck | Professor's annotated notes |
 |---|---|---|---|
-| L13 — Hierarchical Clustering | W7 (Oct 5-9) | not posted yet — `10-hierarchical-clustering.pdf` | not posted yet — `10-hierarchical-clustering-note.pdf` |
+| L18 — Linear Regression | W10 (Oct 26-30) | not posted yet — `15-linear-regression.pdf` | not posted yet — `15-linear-regression-note.pdf` |
+| L19 — Linear Regression (contd) | W11 (Nov 2-6) | not posted yet — `15-linear-regression.pdf` | not posted yet — `15-linear-regression-note.pdf` |
 
 The **annotated notes** are the professor's own in-lecture markup of the deck — that's the version to study from. Anything marked *not posted yet* 404s as of Sep 6, 2026; re-check with `../scripts/check-slides.sh`.
 
@@ -15,27 +16,26 @@ The **annotated notes** are the professor's own in-lecture markup of the deck �
 
 No textbook is required for this course, but the professor strongly encourages the readings listed per class. Week tags show where each item appears on the schedule.
 
-- [Understanding hierarchical clustering](https://towardsdatascience.com/understanding-the-concept-of-hierarchical-clustering-technique-c6e8243758ec) — *W7*
-- [Dendrogram visualization (Data-to-Viz)](https://www.data-to-viz.com/graph/dendrogram.html) — *W7*
-- [K-Means and DBSCAN (course notebook)](https://mahdi-roozbahani.github.io/CS46417641-fall2026/other/06-and-08-plot_dbscan.ipynb) — *W7*
+- [Simple linear regression in matrix format (CMU notes, PDF)](https://mahdi-roozbahani.github.io/CS46417641-fall2026/other/regression-cmu.pdf) — *W10*
+- [Adding noise to regression predictors](http://madrury.github.io/jekyll/update/statistics/2017/08/12/noisy-regression.html) — *W10*
 
 Recommended books that cover this topic (from the course's optional book list — chapter choice is mine, not assigned):
 
-- Data Mining: Concepts and Techniques — Han, Kamber & Pei
 - The Elements of Statistical Learning — Hastie, Tibshirani & Friedman
+- Learning from Data — Abu-Mostafa
 
 ## Prep questions
 
 Answer these before lecture; they're the ones that tend to decide whether the lecture lands.
 
-- [ ] Agglomerative vs divisive — which is actually used, and why?
-- [ ] Linkage criteria (single, complete, average, Ward): what cluster shape does each favor, and where does single linkage chain badly?
-- [ ] How do I read a dendrogram, and how does cutting it at a height give a flat clustering?
-- [ ] Complexity — why does this not scale to large n the way k-means does?
+- [ ] Derive the normal equation from scratch: minimize ||y - Xw||^2, get w = (X'X)^-1 X'y.
+- [ ] When is X'X singular, and what do you do about it? (Leads straight into regularization.)
+- [ ] MLE view: least squares equals maximum likelihood under Gaussian noise. Show it.
+- [ ] Bias-variance decomposition — write the three terms and say which one model complexity moves.
 
 ## Notes on this topic
 
-**Week 7 has Fall Break Oct 5-6**, so this is a single-lecture week and Q6 covers only L13.
+The matrix-calculus identities from [Linear Algebra](01-linear-algebra.md) are the whole derivation here.
 
 ## My notes
 

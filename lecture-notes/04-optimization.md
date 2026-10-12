@@ -96,7 +96,7 @@ Answer these before lecture; they're the ones that tend to decide whether the le
 
 ## Notes on this topic
 
-KKT is set up here and cashed in at [Support Vector Machines](17-support-vector-machines.md). The Stanford KKT/SVM PDF is listed in Week 16 but is worth skimming now. Cross entropy was deferred here from [Information Theory](04-information-theory.md) (its outline slide says *"Let's work on this subject in our Optimization lecture"*), and reappears as the loss in [Logistic Regression](13-naive-bayes-and-logistic-regression.md) and [Neural Networks](14-neural-networks.md).
+KKT is set up here and cashed in at [Support Vector Machines](16-support-vector-machines.md). The Stanford KKT/SVM PDF is listed in Week 16 but is worth skimming now. Cross entropy was deferred here from [Information Theory](03-information-theory.md) (its outline slide says *"Let's work on this subject in our Optimization lecture"*), and reappears as the loss in [Logistic Regression](12-naive-bayes-and-logistic-regression.md) and [Neural Networks](13-neural-networks.md).
 
 **Not covered in the annotated notes despite the prep questions and the W4 reading:** SGD, momentum, learning-rate schedules, divergence. Gradient descent gets one page with a single step. The `GD and momentum.mp4` video is the only course source for momentum.
 
@@ -285,7 +285,7 @@ So `M = S = 12`. Checks (mine): primal value `f(12, 12) = 72 + 72 = 144`; dual v
 
 p. 20: two pictures. **Weak duality**: the primal (convex bowl, minimized) sits above the dual (concave cap, maximized) with a **Gap** between the primal's min and the dual's max. **Strong duality**: the two touch; gap zero.
 
-Why this matters later: in SVMs the dual is the problem actually solved, and it's where kernels come from — see [Support Vector Machines](17-support-vector-machines.md).
+Why this matters later: in SVMs the dual is the problem actually solved, and it's where kernels come from — see [Support Vector Machines](16-support-vector-machines.md).
 
 ### 10. Gradient descent (p. 21)
 
@@ -307,7 +307,7 @@ and `f(x^(t)) > f(x^(t+1))` — checked (mine): `f(3) = 29.09`, `f(2.478) = 18.0
 
 ### 12. Convolution in numpy (pp. 23-24)
 
-Not optimization — likely a preview for the numpy toolbox session (L11) or [CNNs](15-convolutional-neural-networks.md). A 3x3 filter `F` slides over an 8x8 image (pixel values up to 255). At the top-left position:
+Not optimization — likely a preview for the numpy toolbox session (L11) or [CNNs](14-convolutional-neural-networks.md). A 3x3 filter `F` slides over an 8x8 image (pixel values up to 255). At the top-left position:
 
 ```
 F                patch          elementwise product    np.sum()

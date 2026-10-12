@@ -34,7 +34,7 @@ Answer these before lecture; they're the ones that tend to decide whether the le
 
 L25 covers **two decks in one lecture** (decision trees and random forests), each with its own annotated notes PDF. Week 14 is short — Recess and Thanksgiving break follow.
 
-Information gain here is the same quantity from [Information Theory](04-information-theory.md).
+Information gain here is the same quantity from [Information Theory](03-information-theory.md).
 
 ## My notes
 

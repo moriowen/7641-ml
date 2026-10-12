@@ -48,7 +48,7 @@
 
 - **Independence:** `X` and `Y` are independent when knowing one tells you nothing about the other: `p(X | Y) = p(X)`, equivalently `p(X, Y) = p(X) p(Y)`.
 - **Conditional independence:** `X` and `Y` are independent *once `Z` is known*: `p(X | Y, Z) = p(X | Z)`. The deck's example: `P(Flu | Virus, DrinkBeer) = P(Flu | Virus)` — beer drops out of the conditioning set once the virus is known. Conditional independence neither implies nor is implied by plain independence.
-- **Factorizing a joint distribution:** Repeated use of the product rule writes a joint over many variables as a chain of conditionals; conditional-independence assumptions then delete variables from each conditioning set, which is what makes large joints tractable. This is the machinery behind [Naive Bayes](13-naive-bayes-and-logistic-regression.md).
+- **Factorizing a joint distribution:** Repeated use of the product rule writes a joint over many variables as a chain of conditionals; conditional-independence assumptions then delete variables from each conditioning set, which is what makes large joints tractable. This is the machinery behind [Naive Bayes](12-naive-bayes-and-logistic-regression.md).
 
 ### Bayes' rule
 
@@ -89,7 +89,7 @@
 - **Variance of a sum:** `Var(X + Y) = Var(X) + 2 cov(X, Y) + Var(Y)`. The cross term vanishes only when the variables are uncorrelated.
 - **Correlation:** Covariance normalized by both standard deviations, `corr(X, Y) = cov(X, Y) / (sigma_X sigma_Y)`, giving a unit-free number in `[-1, 1]`. Same information as covariance, on a comparable scale.
 - **Uncorrelated:** `cov(X, Y) = 0`. It rules out a *linear* relationship only.
-- **Uncorrelated vs independent:** Independence implies uncorrelated; **the converse is false in general** — a nonlinear dependence (e.g. `Y = X^2` with `X` symmetric about 0) has zero covariance yet total dependence. For **jointly Gaussian** variables the two do coincide. This is the same trap as the linear-algebra deck's "uncorrelated iff orthogonal?" question — see [Linear Algebra](02-linear-algebra.md).
+- **Uncorrelated vs independent:** Independence implies uncorrelated; **the converse is false in general** — a nonlinear dependence (e.g. `Y = X^2` with `X` symmetric about 0) has zero covariance yet total dependence. For **jointly Gaussian** variables the two do coincide. This is the same trap as the linear-algebra deck's "uncorrelated iff orthogonal?" question — see [Linear Algebra](01-linear-algebra.md).
 - **Covariance matrix `Sigma`:** For a random vector, `Sigma = Cov(X) = E[(X - mu)(X - mu)^T]` — variances on the diagonal, pairwise covariances off it. Always symmetric and positive semidefinite.
 
 ### Gaussians in more than one dimension

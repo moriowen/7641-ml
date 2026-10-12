@@ -75,7 +75,7 @@ Answer these before lecture; they're the ones that tend to decide whether the le
 
 Olah's *Visual Information Theory* is assigned in Week 1 but is the single best prep for this topic — read it before L7, not in Week 1.
 
-Information gain shows up again in [Decision Trees & Random Forests](16-decision-trees-and-random-forests.md); cross entropy shows up again in [Logistic Regression](13-naive-bayes-and-logistic-regression.md) and [Neural Networks](14-neural-networks.md). The outline slide before the Cross-Entropy section (slide 30) carries his own note: *"Let's work on this subject in our Optimization lecture."* The loss-function treatment is deferred to [Optimization](05-optimization.md); this deck only sets up the definitions and the identities between them.
+Information gain shows up again in [Decision Trees & Random Forests](15-decision-trees-and-random-forests.md); cross entropy shows up again in [Logistic Regression](12-naive-bayes-and-logistic-regression.md) and [Neural Networks](13-neural-networks.md). The outline slide before the Cross-Entropy section (slide 30) carries his own note: *"Let's work on this subject in our Optimization lecture."* The loss-function treatment is deferred to [Optimization](04-optimization.md); this deck only sets up the definitions and the identities between them.
 
 ### Deck outline
 
@@ -199,7 +199,7 @@ Symmetric forms, all the same number:
 
 Properties (slide 28): **symmetric**, **non-negative**, **zero iff `X` and `Y` are independent**.
 
-His annotation here is the decision-tree preview, and it's why this slide matters: he draws a parent node holding `50 cats, 50 dogs`, splits on a feature (`< 1 ft` / `> 1 ft`), and writes child counts `30` and `70`. `H(Y)` is the parent's entropy, `H(Y|X_i)` is the weighted average of the children's entropies, and the difference is the information gain that picks the split. Same formula, different vocabulary — see [Decision Trees & Random Forests](16-decision-trees-and-random-forests.md).
+His annotation here is the decision-tree preview, and it's why this slide matters: he draws a parent node holding `50 cats, 50 dogs`, splits on a feature (`< 1 ft` / `> 1 ft`), and writes child counts `30` and `70`. `H(Y)` is the parent's entropy, `H(Y|X_i)` is the weighted average of the children's entropies, and the difference is the information gain that picks the split. Same formula, different vocabulary — see [Decision Trees & Random Forests](15-decision-trees-and-random-forests.md).
 
 Slide 29 is Olah's bar diagram, and it encodes every identity in one picture: a full bar `H(X,Y)`; that bar split as `H(X) + H(Y|X)` and alternately as `H(X|Y) + H(Y)`; and the overlap view where `H(X)` and `H(Y)` overlap in the middle, the overlap being `I(X,Y)` and the non-overlapping ends `H(X|Y)` and `H(Y|X)`. If you can redraw this bar from memory you can re-derive every identity in the deck.
 
@@ -329,7 +329,7 @@ These are the gaps between the formulas, which is where the last two quizzes wen
 
 12. **Minimizing cross entropy and minimizing KL are the same optimization, but not the same *number*.** They differ by the constant `H(P)`. A question asking for the *value* at the optimum has two different answers.
 
-13. **`I(X,Y) = 0` iff independent — "iff", both directions.** Zero mutual information isn't just "no linear relationship" (that would be zero correlation). Zero MI means no statistical dependence of any kind. This is the information-theoretic strengthening of the correlation-vs-independence trap from [Probability & Statistics](03-probability-and-statistics.md): uncorrelated does not imply independent, but zero MI does.
+13. **`I(X,Y) = 0` iff independent — "iff", both directions.** Zero mutual information isn't just "no linear relationship" (that would be zero correlation). Zero MI means no statistical dependence of any kind. This is the information-theoretic strengthening of the correlation-vs-independence trap from [Probability & Statistics](02-probability-and-statistics.md): uncorrelated does not imply independent, but zero MI does.
 
 14. **`I(X,Y) <= min(H(X), H(Y))`.** Not stated on any slide, but it falls straight out of `I = H(Y) - H(Y|X)` and `H(Y|X) >= 0`. A feature can never tell you more about `Y` than `Y`'s own entropy, however informative it is. Useful for eliminating impossible numeric options.
 

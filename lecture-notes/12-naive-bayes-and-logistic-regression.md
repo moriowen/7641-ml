@@ -32,7 +32,7 @@ Answer these before lecture; they're the ones that tend to decide whether the le
 
 ## Notes on this topic
 
-Cross entropy from [Information Theory](04-information-theory.md) is the loss function here. **Project midpoint report and peer evaluation are both due Nov 13**, the same week.
+Cross entropy from [Information Theory](03-information-theory.md) is the loss function here. **Project midpoint report and peer evaluation are both due Nov 13**, the same week.
 
 ## My notes
 

@@ -140,7 +140,7 @@ Answer these before lecture; they're the ones that tend to decide whether the le
 
 Both L3 and L4 use the **same deck and same annotated PDF** — the professor continues through it, so the notes file is cumulative. Re-download it after L4 rather than assuming the L3 copy is current.
 
-Correlation vs covariance was assigned in Week 2 but is really probability material — cross-referenced in [Probability & Statistics](03-probability-and-statistics.md).
+Correlation vs covariance was assigned in Week 2 but is really probability material — cross-referenced in [Probability & Statistics](02-probability-and-statistics.md).
 
 ### Deck outline
 
@@ -183,7 +183,7 @@ Informally: the "length" of a vector.
 
 `‖x‖_2^2 = sum x_i^2` (squared, no root) is the form that shows up in loss functions.
 
-His annotations tie this straight to optimization — he wrote **"optimization = training"** — and sketched `f(x) = x^2` (smooth, `f'(x) = 2x = 0 => x = 0`) against `f(x) = |x|` (kink at 0, not differentiable there). That is the l2-vs-l1 regularization story arriving early; it returns in [Regularized Regression](12-regularized-regression.md).
+His annotations tie this straight to optimization — he wrote **"optimization = training"** — and sketched `f(x) = x^2` (smooth, `f'(x) = 2x = 0 => x = 0`) against `f(x) = |x|` (kink at 0, not differentiable there). That is the l2-vs-l1 regularization story arriving early; it returns in [Regularized Regression](11-regularized-regression.md).
 
 ### 3. Special matrices
 
@@ -233,7 +233,7 @@ His worked examples:
 - **Pseudo-inverse** for non-square `A in R^{n x d}`: `A+ = (A^T A)^-1 A^T in R^{d x n}`.
   - `A+ A = I` (d x d) — the left-inverse works
   - `A A+ != I` in general (n x n; he labelled it "= C") — the other side does not collapse to identity
-  - His intuition on the board: `(A^T A)^-1 A^T` is roughly "`A^T` divided by `A^T A`". This is the normal-equations formula that returns in [Linear Regression](11-linear-regression.md).
+  - His intuition on the board: `(A^T A)^-1 A^T` is roughly "`A^T` divided by `A^T A`". This is the normal-equations formula that returns in [Linear Regression](10-linear-regression.md).
 
 ### 7. Trace
 
@@ -343,7 +343,7 @@ So **V holds the eigenvectors of the covariance matrix**, and
 lambda_i = Sigma_i^2 / n
 ```
 
-where `lambda_i` is an eigenvalue of C and `Sigma_i` a singular value of `X_bar`. The covariance eigenvalues come straight out of the SVD of X, without ever forming C. This is exactly the machinery behind [PCA](10-dimensionality-reduction-pca.md).
+where `lambda_i` is an eigenvalue of C and `Sigma_i` a singular value of `X_bar`. The covariance eigenvalues come straight out of the SVD of X, without ever forming C. This is exactly the machinery behind [PCA](09-dimensionality-reduction-pca.md).
 
 **Geometric meaning of SVD:** any linear map A decomposes into **rotate (`V^T`) → scale along axes (`Sigma`) → rotate (`U`)**. The unit circle becomes an ellipse with semi-axes `sigma_1 u_1`, `sigma_2 u_2`.
 

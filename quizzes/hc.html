@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hierarchical Clustering MCQ Bank</title>
+  <style>
+    :root { color-scheme: light dark; --page:#f6f6f3; --card:#fff; --text:#1c1c1a; --muted:#686862; --line:#d8d8d1; --accent:#245c46; --answer:#eef6f1; --correct:#2f8f5b; --wrong:#c1483c; }
+    @media (prefers-color-scheme: dark) { :root { --page:#171816; --card:#20211f; --text:#ededE8; --muted:#aaa9a1; --line:#3a3b37; --accent:#8ed0ad; --answer:#1b2b23; --correct:#3fae74; --wrong:#e06a5c; } }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--text); font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(820px, calc(100% - 32px)); margin:48px auto 80px; }
+    header { margin-bottom:24px; }
+    h1 { margin:0 0 8px; font-size:clamp(1.8rem,5vw,2.7rem); line-height:1.12; letter-spacing:-.03em; }
+    h2 { margin:42px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line); font-size:1.18rem; }
+    p { margin:0; }
+    .intro { color:var(--muted); max-width:68ch; }
+    .count { margin-top:10px; font-size:.9rem; color:var(--muted); }
+    .controls { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 0; margin-bottom:8px; background:var(--page); border-bottom:1px solid var(--line); }
+    .controls .label { font-size:.85rem; color:var(--muted); margin-right:2px; }
+    .filter { cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; padding:6px 14px; font-size:.85rem; font-weight:600; }
+    .filter.active { background:var(--accent); border-color:var(--accent); color:var(--page); }
+    .reset { margin-left:auto; cursor:pointer; border:1px solid var(--line); background:transparent; color:var(--muted); border-radius:6px; padding:6px 10px; font-size:.8rem; }
+    .reset:hover { color:var(--text); border-color:var(--text); }
+    .empty-state { padding:28px 8px; color:var(--muted); font-style:italic; }
+    ol.questions { margin:0; padding-left:2rem; }
+    li.question { padding:18px 18px 18px 8px; border-bottom:1px solid var(--line); }
+    .prompt { margin-bottom:10px; font-weight:620; }
+    ol.options { margin:0 0 12px; padding-left:1.7rem; }
+    ol.options li { padding:2px 0; }
+    code { font-family:"SFMono-Regular",Consolas,monospace; font-size:.94em; }
+    details { background:var(--answer); border:1px solid var(--line); border-radius:6px; padding:8px 11px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+    .answer { margin-top:8px; }
+    .answer strong { color:var(--accent); }
+    .track { margin-top:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .mark { cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:6px; padding:6px 10px; font-size:.85rem; font-weight:600; }
+    .mark.correct.active { background:var(--correct); border-color:var(--correct); color:#fff; }
+    .mark.wrong.active { background:var(--wrong); border-color:var(--wrong); color:#fff; }
+    .status-label { font-size:.8rem; color:var(--muted); }
+    footer { margin-top:44px; color:var(--muted); font-size:.86rem; }
+    @media print { :root { color-scheme:light; } body { background:#fff; } main { width:100%; margin:0; } details { break-inside:avoid; } .controls { position:static; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Hierarchical Clustering MCQ Bank</h1>
+      <p class="intro">Conceptual practice for Quiz 6 (L13 hierarchical clustering). Everything comes from the lecture: hierarchical vs partitional, cutting a dendrogram, agglomerative vs divisive, what each linkage measures and how single and complete link behave, tracing the worked five-point and 1-D examples, and Beta-CV / normalized cut. Questions from the Ed practice quiz are folded in. Open the answer only when you are ready to check your work.</p>
+      <p class="count" id="count"></p>
+    </header>
+    <div class="controls">
+      <span class="label">Show:</span>
+      <button class="filter active" data-filter="all" type="button">All</button>
+      <button class="filter" data-filter="wrong" type="button">Wrong only</button>
+      <button class="filter" data-filter="unanswered" type="button">Unanswered</button>
+      <button class="filter" data-filter="correct" type="button">Correct only</button>
+      <button class="reset" id="reset" type="button">Reset progress</button>
+    </div>
+    <p class="empty-state" id="emptyState" hidden></p>
+    <div id="bank"></div>
+    <footer>Source coverage: 10-hierarchical-clustering-note.pdf (PDF page numbers cited in the answers) and the Ed practice quiz. Nothing outside the lecture is tested. A few explanations use small counterexamples of my own (e.g. centroid vs average link) to show why a slide's claim holds. Right/wrong marks are saved in this browser only (localStorage) — they don't sync across devices.</footer>
+  </main>
+  <script>
+    const sections = [
+      { title: "Hierarchical vs partitional, and reading a dendrogram", questions: [
+        ["What does hierarchical clustering give you that k-means does not?",["A centre point for every cluster","A single flat partition into exactly k clusters","A probability of each point belonging to each cluster","A tree of nested clusters with parent–child relationships (a dendrogram)"],3,"p. 4: hierarchical = tree structure (parent–child relationship); partitional (k-means) = one flat split. The tree holds every granularity at once."],
+        ["Do you have to choose the number of clusters before running agglomerative clustering?",["No — you build the whole tree, then pick the granularity by where you cut it","Yes, it is always 2","Yes, exactly like k in k-means","Only when using complete link"],0,"p. 10: cutting the dendrogram at a desired level gives the clusters, so the choice happens after the tree is built. Not needing k up front is what the k-means recap (p. 1) sets up."],
+        ["In the animal taxonomy (p. 6), a cut just below 'animal' gives 2 clusters (vertebrate / invertebrate), and a lower cut gives 7 (fish, reptile, …, crustacean). What does this show?",["The algorithm is unstable","The lower cut is wrong because it gives too many clusters","One dendrogram encodes groupings at several levels of granularity","You must re-run the algorithm for each number of clusters"],2,"Both cuts are valid readings of the same tree. 'Organizing data at multiple granularities' is the reason to build a hierarchy at all."],
+        ["You move the cut line on a dendrogram <em>down</em>, toward the leaves. The number of clusters:",["Depends on which linkage built the tree","Never decreases — you get the same number or more, finer clusters","Always decreases","Stays the same"],1,"Going down undoes merges. Each merge you pass back below splits one cluster into two. Moving down can only split clusters, never join them."],
+        ["Cut one dendrogram at two heights, giving 2 clusters and 4 clusters. How are the two results related?",["The 4 clusters are always the 2 clusters each split in half","The 2-cluster result always has equal-sized clusters","They are unrelated partitions","Every one of the 4 clusters sits entirely inside one of the 2 clusters"],3,"Cuts of the same tree are nested — that's the parent–child structure. Each fine cluster is a subtree of a coarse one. (‘Each split in half’ is too strong: one of the 2 could split into 3 and the other not split at all.)"],
+        ["DNA tree (p. 7). Merges, lowest first: brown + polar bear; + black bear; + spectacled bear; then (that group + giant panda) and (raccoon + red panda) at the same height; then the root. Cut to get exactly <strong>two</strong> clusters:",["{Brown, Polar, Black, Spectacled, Giant panda} and {Raccoon, Red panda}","{Brown, Polar, Black, Spectacled} and {Giant panda, Raccoon, Red panda}","{Brown, Polar, Black} and {Spectacled, Giant panda, Raccoon, Red panda}","{Brown bear, Giant panda} and {Raccoon, Red panda}"],0,"Two clusters means cutting just below the root, so the root's two children are the clusters. This is the Ed practice quiz's Q4 — and it's why the caption says the giant panda landed closer to the bears than to the red panda."],
+        ["Same DNA tree. The professor's purple line sits just <em>below</em> the height where giant panda and raccoon + red panda merge. How many clusters?",["2","3","4","5"],2,"Below that height, those two merges are undone: {brown, polar, black, spectacled}, {giant panda}, {raccoon}, {red panda}. Because the two merges share one height, no single cut gives exactly 3."],
+      ]},
+      { title: "Agglomerative vs divisive", questions: [
+        ["True or False: in top-down (divisive) hierarchical clustering, we start by treating each data point as its own cluster.",["True","False"],1,"Top-down starts with all objects in one big cluster and recursively splits in two. Every point as its own cluster is the bottom-up (agglomerative) start (p. 12)."],
+        ["Agglomerative clustering on n = 5 points. How many merges until it stops?",["3","4","5","10"],1,"Each merge reduces the number of clusters by exactly one: 5 → 1 takes 4 merges. p. 13 shows them as steps 1–4 after step 0."],
+        ["p. 13, agglomerative: step 1 {a b}, step 2 {d e}, step 3 {c d e}, step 4 {a b c d e}. Read the same picture as divisive. What is divisive step 1?",["Split every point off on its own","Split {a b c d e} into {a b} and {c d e}","Split {a b c d e} into {a b c} and {d e}","Split off d and e"],1,"Divisive is the same tree read top-down. Its first split undoes the last agglomerative merge: {a b} + {c d e}."],
+        ["True or False: once two clusters merge in bottom-up clustering, they stay together at every later step.",["True","False"],0,"Agglomerative only ever merges. Nothing splits a cluster again, so an early merge is permanent even if it later looks like a bad one."],
+        ["Bottom-up clustering with <em>complete</em> link. Which pair gets merged first?",["The pair whose centroid is nearest the overall mean","The two points that are farthest apart","It depends on which complete-link tie-break you use","The two points that are closest together"],3,"At the start every cluster is one point, so min, max, average and centroid distance are all the same number. The first merge is the closest pair under any linkage — Ed practice 1b (True) and Q2 (A, B)."],
+        ["Agglomerative clustering stops when:",["Only one cluster is left","Every cluster holds exactly one object","k clusters remain","Distortion stops decreasing"],0,"p. 12: bottom-up stops at one cluster, and divisive stops when every cluster holds one object. You get a flat clustering afterwards by cutting the tree."],
+      ]},
+      { title: "Linkage: what 'distance between clusters' means", questions: [
+        ["His margin notes: single link = 'the shortest of shortests', complete link = 'the shortest of longests'. What does complete link do when choosing what to merge A with?",["For each candidate, take the closest pair to A; merge with the smallest of these","Merge with the candidate whose farthest pair is largest","Merge with the candidate that has the most points","For each candidate, take the farthest pair to A; merge with the candidate whose farthest pair is smallest"],3,"Complete link scores each candidate by its worst-case (longest) pair, then picks the best score — the shortest of the longests."],
+        ["pp. 21–22 use the same clusters A, B, C. Single link merges A with B; complete link merges A with C. What does that show?",["The linkage choice can change which merge happens, even on identical data","Complete link always picks the cluster on the right","One of the slides has an error","Single and complete always disagree"],0,"Single sees only the closest pair (B has one point very near A). Complete sees only the farthest pair (B also has a far point, while C is tight). Different questions, different answers — p. 26: different distance functions can give different results."],
+        ["True or False: if two clusters are the closest pair under single link, they are also the closest pair under complete link.",["True","False"],1,"pp. 21–22 are the counterexample: B is closest to A by single link, C by complete link."],
+        ["True or False: if two clusters are the closest pair under centroid distance, they are also the closest pair under average link.",["True","False"],1,"The distance between averages is not the average of the distances. 1-D: A = {0}, B = {−1, 1}, C = {0.5}. Centroid: B's centre is 0, so B is closest. Average link: A–B = (1 + 1)/2 = 1 > A–C = 0.5, so C is closest."],
+        ["For any two clusters, how do the single, average and complete link distances compare?",["single ≤ average ≤ complete","complete ≤ average ≤ single","They can come in any order","They are always equal"],0,"Single is the minimum of the cross-pair distances, complete the maximum, and average their mean — so the mean sits between them. All three are equal only when every cross pair is the same distance, e.g. both clusters are single points."],
+        ["Average link between a 2-point cluster and a 3-point cluster averages how many point-to-point distances?",["2","3","5","6"],3,"Average link averages every cross-cluster pair: |A| × |B| = 2 × 3 = 6."],
+        ["True or False: the centroid method is the best cluster-distance function.",["True","False"],1,"The lecture names no best linkage. p. 26: different distance functions lead to different results. p. 23: when you don't know which suits your data, start with average link."],
+      ]},
+      { title: "Single vs complete: how they behave", questions: [
+        ["Two dense blobs joined by a thin, evenly spaced line of points. What does single link tend to do?",["Keep the blobs apart until the very last merge","Join the blobs early by walking along the bridge, one short hop at a time","Split each blob in half","Ignore the bridge points"],1,"That's chaining (p. 23): single link only needs one short link between clusters, so a chain of points can stretch a cluster a long way regardless of its overall shape."],
+        ["According to p. 23, which statement is NOT correct?",["Single link suffers from chaining","Single link is generally faster","Complete link tends to avoid chaining","Complete link is more sensitive to outliers than single link"],3,"The lecture says the opposite: single link is sensitive to outliers, complete link is 'more robust to outliers'. The other three are on the slide as written."],
+        ["Dendrograms on p. 23: single link gives a staircase ((a, b), c), d; complete link gives (a, b), (c, d). Cut each at its last merge. Cluster sizes?",["Both 3 + 1","Single 2 + 2; complete 3 + 1","Both 2 + 2","Single 3 + 1; complete 2 + 2"],3,"The staircase peels off one point at a time, so its top split is lopsided. Complete link tends to give two groups of roughly equal size when you cut at the last merge — the property p. 23 lists."],
+        ["8 points (pp. 42–43): top row 1 2 · 5 6, bottom row 3 4 · 7 8. The gap from 2 to 5 is shorter than the gap from 1 to 3. After the four close pairs form, single link merges rows {1,2,5,6} but complete link merges columns {1,2,3,4}. Why columns?",["Complete link always prefers vertical merges","Complete link ignores horizontal distance","Single link has a tie-break the other way","Joining a row means its farthest pair is 1–6, a long span; joining a column means its farthest pair is the short diagonal 1–4"],3,"Single link compares closest pairs (2–5 vs 1–3), so the row wins. Complete link compares farthest pairs (1–6 vs 1–4), so the column wins."],
+        ["1-D (p. 44): a = 0.5, b = 2, c = 5, d = 6, e = 10. Both linkages first form {c, d} and then {a, b}. Cut each tree into two clusters:",["Both give {a,b,c,d} | {e}","Single {a,b,c,d} | {e};  complete {a,b} | {c,d,e}","Single {a,b} | {c,d,e};  complete {a,b,c,d} | {e}","Both give {a,b} | {c,d,e}"],1,"Single: {a,b}–{c,d} = 3 (b–c) beats {c,d}–e = 4 (d–e). Complete: {c,d}–e = 5 (c–e) beats {a,b}–{c,d} = 5.5 (a–d). Same data, different two-cluster answer."],
+        ["Ring of 20 evenly spaced points plus point 21 in the middle (pp. 45–46). Which linkage is more likely to make the whole ring one cluster before it takes in point 21?",["Single link","Complete link","Both equally","Neither — the ring can never be one cluster"],0,"Neighbouring ring points are close, so single link grows one chain around the loop. Point 21 is far from every ring point. Complete link instead builds compact local groups, because a group spanning much of the ring has a huge farthest pair."],
+        ["Two clusters each have many tightly packed points, plus a few points far away. Why might the linkage decide whether these clusters merge?",["All linkages always make the same merge decisions","Only cluster size decides a merge","Hierarchical clustering ignores distances when merging","Different linkages pay attention to different point pairs when comparing clusters"],3,"Complete link is driven by the far points (they set the max). Single link is driven by whichever points come closest (the min). Average sits in between. This is the Ed practice Q6."],
+      ]},
+      { title: "Tracing the worked examples", questions: [
+        ["Dataset 1: A(1,1), B(1,0), C(0,2), D(2,4), E(3,5). After merging A and B, what is d((A,B), C) under single, the lecture's average, and complete link? (d(A,C) = 1.4, d(B,C) = 2.2)",["1.8, 1.8, 1.8","2.2, 1.8, 1.4","1.4, 1.8, 2.2","1.4, 1.4, 2.2"],2,"Single takes the min (1.4), complete the max (2.2), and the slide's average is (1.4 + 2.2)/2 = 1.8 — his margin note on p. 28 is literally (a + b)/2."],
+        ["Dataset 1, average link. After A+B, the table gives (A,B)–C = 1.8 and D–E = 1.4. Next merge?",["C with D","(A,B) with C","(A,B) with D","D with E"],3,"Always merge the smallest entry in the current table: 1.4 < 1.8. Then (A,B)+C at 1.8, and everything at 3.875 (p. 31)."],
+        ["Dataset 1's average-link tree: AB at 1, DE at √2 ≈ 1.414 (printed 1.4), ABC at 1.8, root at 3.875. Cut at 1.41. Clusters?",["(A,B), C, (D,E)","A, B, C, D, E","(A,B), C, D, E","(A,B,C), (D,E)"],2,"D–E merges at 1.414, just above 1.41, so D and E are still separate. Only A–B (at 1) is below the cut. Ed practice Q3 — the trap is reading the slide's rounded 1.4 as 1.4 exactly."],
+        ["Dataset 2 (D moved to (1.5, 3.5)), same cut at 1.7. Single link gives {A,B,C}, D, E; complete link gives {A,B}, C, D, E. Why the difference?",["Complete link merges D and E later","Single link ignores point C","C is 1.4 from A but 2.2 from B: single link uses the 1.4 (below the cut), complete uses the 2.2 (above it)","The cut height means different things for the two linkages"],2,"Same data and cut. Only the (A,B)–C distance changes: min = 1.4 vs max = 2.2. The 1.7 line falls between them (pp. 36, 40)."],
+        ["Dataset 2, single link. The last two merges (D+E, then everything) both happen at 2.12. What does the dendrogram look like there?",["The root sits at 5.4","It's an error — merge heights must strictly increase","D and E don't merge until the end","Both nodes are drawn at the same height, 2.12"],3,"After D+E at 2.12, the closest cross pair between {A,B,C} and {D,E} is C–D = 2.12, so the final merge happens at the same height (p. 36)."],
+        ["Dataset 2, complete link. After A+B there's a tie: C–D = 2.12 and D–E = 2.12. The slide merges D+E, which ends with the two clusters {A,B,C} | {D,E}. If you merged C+D instead, the two top clusters would be:",["{A,B} | {C,D,E}","{A,B,C} | {D,E} — ties never matter","{A} | {B,C,D,E}","{A,B,C,D} | {E}"],3,"With {C,D} formed: (A,B)–(C,D) = max(1.4, 2.2, 2.55, 3.53) = 3.53, (C,D)–E = max(4.2, 2.12) = 4.2. So (A,B)+(C,D) merge at 3.53 and E joins last. Tie-breaks can change the hierarchy."],
+      ]},
+      { title: "Evaluating a clustering", questions: [
+        ["Algorithm A gives very compact clusters that sit close to each other. Algorithm B gives more spread-out clusters that are far apart. Which is most reasonable?",["Look at both within-cluster closeness and between-cluster separation before deciding","B must be better — its clusters are farther apart","A must be better — its clusters are more compact","They must be equally good because the data is the same"],0,"p. 47: we want points within a cluster as close as possible and clusters as far apart as possible. Each algorithm wins on one of the two (Ed practice Q5)."],
+        ["Beta-CV = (W_in / N_in) / (W_out / N_out). In words:",["Mean intra-cluster distance ÷ mean inter-cluster distance","Sum of all pairwise distances","Number of clusters ÷ number of points","Total inter-cluster distance ÷ total intra-cluster distance"],0,"W_in / N_in is the average distance of a pair inside a cluster; W_out / N_out is the average distance of a pair in different clusters. He circles both averages on p. 49."],
+        ["One clustering has Beta-CV = 0.3, another 0.8. Which is better?",["0.3 — pairs inside a cluster are much closer than pairs across clusters","They are equally good","0.8 — larger ratio means more structure","You can't compare Beta-CV values"],0,"Smaller is better (p. 49): small intra-cluster distances relative to inter-cluster distances."],
+        ["Why is there a factor 1/2 in W_in = ½ Σ W(C_i, C_i)?",["Distances are squared","To normalize by the number of clusters","It converts distances into similarities","W(C_i, C_i) sums over ordered pairs, so every pair (a, b) is counted twice — as ab and ba"],3,"p. 48 whiteboard: 'the distance of each point is measured two times' (ab + ac + ad + ba + …). The same ½ appears in W_out = ½ Σ W(C_i, C̄_i)."],
+        ["Three clusters of sizes 2, 3 and 2. Compute N_in and N_out.",["N_in = 5, N_out = 6","N_in = 3, N_out = 21","N_in = 5, N_out = 16","N_in = 7, N_out = 14"],2,"N_in = C(2,2) + C(3,2) + C(2,2) = 1 + 3 + 1 = 5 (his p. 49 example). N_out = 2·3 + 2·2 + 3·2 = 16. Sanity check: 5 + 16 = 21 = C(7,2), every pair counted once."],
+        ["With W holding distances, a higher normalized cut is better, while a lower Beta-CV is better. Why is NC 'higher is better'?",["Each NC term is the fraction of a cluster's total distance that goes to points outside it — good clusters send most of their distance outward","NC counts the number of clusters","It's a typo on the slide","NC uses similarities, not distances"],0,"NC_i = W(C_i, C̄_i) / (W(C_i, C_i) + W(C_i, C̄_i)). Tight clusters have small W(C_i, C_i), so the ratio approaches 1."],
+        ["k = 3 clusters. What is the largest possible normalized cut?",["3","No upper bound","1","9"],0,"Each term is 1 / (W(C_i,C_i)/W(C_i,C̄_i) + 1) ≤ 1, so NC ≤ k = 3. It reaches 3 when every cluster's points are at distance 0 from each other."],
+        ["Two algorithms both give compact clusters, but their overall structures differ. Why evaluate with more than one criterion?",["It's only meaningful when clusters are the same size","Different criteria capture different aspects of clustering quality","Every criterion gives the same answer","Using several criteria guarantees the global optimum"],1,"Beta-CV, normalized cut, silhouette and elbow each weigh cohesion and separation differently (Ed practice Q8)."],
+      ]},
+    ];
+
+    const letters = ["A", "B", "C", "D"];
+    const escapeHtml = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    const STORAGE_KEY = "hc-mcq-progress-v1";
+    const FILTER_KEY = "hc-mcq-filter-v1";
+
+    function loadProgress() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+      catch (e) { return {}; }
+    }
+    function saveProgress(progress) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+      catch (e) { /* localStorage unavailable — progress just won't persist */ }
+    }
+    function loadFilter() {
+      try { return localStorage.getItem(FILTER_KEY) || "all"; }
+      catch (e) { return "all"; }
+    }
+    function saveFilter(f) {
+      try { localStorage.setItem(FILTER_KEY, f); }
+      catch (e) { /* ignore */ }
+    }
+
+    let progress = loadProgress();
+    let currentFilter = loadFilter();
+
+    let number = 0;
+    const bank = document.getElementById("bank");
+    for (const section of sections) {
+      const wrapper = document.createElement("section");
+      wrapper.className = "topic";
+
+      const heading = document.createElement("h2");
+      heading.textContent = section.title;
+      wrapper.appendChild(heading);
+
+      const list = document.createElement("ol");
+      list.className = "questions";
+      list.start = number + 1;
+
+      for (const [prompt, options, answerIndex, explanation] of section.questions) {
+        number += 1;
+        const n = String(number);
+        const item = document.createElement("li");
+        item.className = "question";
+        item.dataset.n = n;
+        item.innerHTML = `
+          <div class="prompt">${prompt}</div>
+          <ol class="options" type="A">
+            ${options.map(option => `<li>${escapeHtml(option)}</li>`).join("")}
+          </ol>
+          <details>
+            <summary>Show answer</summary>
+            <p class="answer"><strong>${letters[answerIndex]}.</strong> ${escapeHtml(options[answerIndex])}<br>${escapeHtml(explanation)}</p>
+          </details>
+          <div class="track" data-n="${n}">
+            <button class="mark correct" type="button">✓ Got it right</button>
+            <button class="mark wrong" type="button">✗ Got it wrong</button>
+            <span class="status-label"></span>
+          </div>`;
+        list.appendChild(item);
+      }
+      wrapper.appendChild(list);
+      bank.appendChild(wrapper);
+    }
+
+    const totalQuestions = number;
+
+    function updateTrackUI(track) {
+      const n = track.dataset.n;
+      const status = progress[n];
+      track.querySelector(".mark.correct").classList.toggle("active", status === "correct");
+      track.querySelector(".mark.wrong").classList.toggle("active", status === "wrong");
+      const label = track.querySelector(".status-label");
+      label.textContent = status === "correct" ? "Marked correct" : status === "wrong" ? "Marked wrong — review this" : "";
+    }
+
+    function applyFilter() {
+      let anyVisible = 0;
+      bank.querySelectorAll(".topic").forEach(sectionEl => {
+        let visibleInSection = 0;
+        sectionEl.querySelectorAll("li.question").forEach(li => {
+          const status = progress[li.dataset.n];
+          let show = true;
+          if (currentFilter === "wrong") show = status === "wrong";
+          else if (currentFilter === "correct") show = status === "correct";
+          else if (currentFilter === "unanswered") show = !status;
+          li.hidden = !show;
+          if (show) visibleInSection++;
+        });
+        sectionEl.hidden = visibleInSection === 0;
+        anyVisible += visibleInSection;
+      });
+      const emptyState = document.getElementById("emptyState");
+      if (anyVisible === 0) {
+        const messages = {
+          wrong: "Nothing marked wrong yet — nice work, or you haven't graded yourself yet.",
+          correct: "Nothing marked correct yet.",
+          unanswered: "Everything has been marked — nice work.",
+          all: "No questions to show.",
+        };
+        emptyState.textContent = messages[currentFilter] || "No questions to show.";
+        emptyState.hidden = false;
+      } else {
+        emptyState.hidden = true;
+      }
+    }
+
+    function updateCount() {
+      let correct = 0, wrong = 0;
+      for (const n in progress) {
+        if (progress[n] === "correct") correct++;
+        else if (progress[n] === "wrong") wrong++;
+      }
+      const unanswered = totalQuestions - correct - wrong;
+      document.getElementById("count").textContent =
+        `${totalQuestions} questions across ${sections.length} sections · ${correct} correct · ${wrong} wrong · ${unanswered} unanswered`;
+    }
+
+    bank.addEventListener("click", (e) => {
+      const btn = e.target.closest(".mark");
+      if (!btn) return;
+      const track = btn.closest(".track");
+      const n = track.dataset.n;
+      const status = btn.classList.contains("correct") ? "correct" : "wrong";
+      progress[n] = progress[n] === status ? undefined : status;
+      if (progress[n] === undefined) delete progress[n];
+      saveProgress(progress);
+      updateTrackUI(track);
+      applyFilter();
+      updateCount();
+    });
+
+    document.querySelectorAll(".filter").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentFilter = btn.dataset.filter;
+        saveFilter(currentFilter);
+        document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b === btn));
+        applyFilter();
+      });
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      if (!confirm("Clear all saved right/wrong marks for this question bank?")) return;
+      progress = {};
+      saveProgress(progress);
+      bank.querySelectorAll(".track").forEach(updateTrackUI);
+      applyFilter();
+      updateCount();
+    });
+
+    // initial paint
+    bank.querySelectorAll(".track").forEach(updateTrackUI);
+    document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b.dataset.filter === currentFilter));
+    applyFilter();
+    updateCount();
+  </script>
+</body>
+</html>

@@ -37,7 +37,7 @@ Answer these before lecture; they're the ones that tend to decide whether the le
 
 ## Notes on this topic
 
-This is where the [Linear Algebra](02-linear-algebra.md) eigen-decomposition material actually pays off — review those annotated notes before L17.
+This is where the [Linear Algebra](01-linear-algebra.md) eigen-decomposition material actually pays off — review those annotated notes before L17.
 
 ## My notes
 

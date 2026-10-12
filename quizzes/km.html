@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clustering MCQ Bank</title>
+  <style>
+    :root { color-scheme: light dark; --page:#f6f6f3; --card:#fff; --text:#1c1c1a; --muted:#686862; --line:#d8d8d1; --accent:#245c46; --answer:#eef6f1; --correct:#2f8f5b; --wrong:#c1483c; }
+    @media (prefers-color-scheme: dark) { :root { --page:#171816; --card:#20211f; --text:#ededE8; --muted:#aaa9a1; --line:#3a3b37; --accent:#8ed0ad; --answer:#1b2b23; --correct:#3fae74; --wrong:#e06a5c; } }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--text); font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(820px, calc(100% - 32px)); margin:48px auto 80px; }
+    header { margin-bottom:24px; }
+    h1 { margin:0 0 8px; font-size:clamp(1.8rem,5vw,2.7rem); line-height:1.12; letter-spacing:-.03em; }
+    h2 { margin:42px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line); font-size:1.18rem; }
+    p { margin:0; }
+    .intro { color:var(--muted); max-width:68ch; }
+    .count { margin-top:10px; font-size:.9rem; color:var(--muted); }
+    .controls { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 0; margin-bottom:8px; background:var(--page); border-bottom:1px solid var(--line); }
+    .controls .label { font-size:.85rem; color:var(--muted); margin-right:2px; }
+    .filter { cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px; padding:6px 14px; font-size:.85rem; font-weight:600; }
+    .filter.active { background:var(--accent); border-color:var(--accent); color:var(--page); }
+    .reset { margin-left:auto; cursor:pointer; border:1px solid var(--line); background:transparent; color:var(--muted); border-radius:6px; padding:6px 10px; font-size:.8rem; }
+    .reset:hover { color:var(--text); border-color:var(--text); }
+    .empty-state { padding:28px 8px; color:var(--muted); font-style:italic; }
+    ol.questions { margin:0; padding-left:2rem; }
+    li.question { padding:18px 18px 18px 8px; border-bottom:1px solid var(--line); }
+    .prompt { margin-bottom:10px; font-weight:620; }
+    ol.options { margin:0 0 12px; padding-left:1.7rem; }
+    ol.options li { padding:2px 0; }
+    code { font-family:"SFMono-Regular",Consolas,monospace; font-size:.94em; }
+    details { background:var(--answer); border:1px solid var(--line); border-radius:6px; padding:8px 11px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+    .answer { margin-top:8px; }
+    .answer strong { color:var(--accent); }
+    .track { margin-top:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .mark { cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:6px; padding:6px 10px; font-size:.85rem; font-weight:600; }
+    .mark.correct.active { background:var(--correct); border-color:var(--correct); color:#fff; }
+    .mark.wrong.active { background:var(--wrong); border-color:var(--wrong); color:#fff; }
+    .status-label { font-size:.8rem; color:var(--muted); }
+    footer { margin-top:44px; color:var(--muted); font-size:.86rem; }
+    @media print { :root { color-scheme:light; } body { background:#fff; } main { width:100%; margin:0; } details { break-inside:avoid; } .controls { position:static; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Clustering &amp; K-Means MCQ Bank</h1>
+      <p class="intro">Conceptual practice for Quiz 5 (L11 toolbox + L12 clustering &amp; k-means). No slide recall — every question asks why something works, what happens if you change it, or where it quietly breaks: metric properties, the convex-Voronoi limit of k-means, why the center is the mean, coordinate descent and local minima, initialization, choosing k, failure modes, and the NumPy shape/copy/dtype gotchas that bite when you implement it. Open the answer only when you are ready to check your work.</p>
+      <p class="count" id="count"></p>
+    </header>
+    <div class="controls">
+      <span class="label">Show:</span>
+      <button class="filter active" data-filter="all" type="button">All</button>
+      <button class="filter" data-filter="wrong" type="button">Wrong only</button>
+      <button class="filter" data-filter="unanswered" type="button">Unanswered</button>
+      <button class="filter" data-filter="correct" type="button">Correct only</button>
+      <button class="reset" id="reset" type="button">Reset progress</button>
+    </div>
+    <p class="empty-state" id="emptyState" hidden></p>
+    <div id="bank"></div>
+    <footer>Source coverage: concepts from 08-clustering-note.pdf and the toolbox notebook (02-numpy_broadcasting_tutorial.ipynb), plus closely related gotchas that go beyond them — k-means++, k-medoids/k-modes, the ||x||² − 2x·c + ||c||² trick, solve vs inv — which are flagged in the explanations where they extend past the lecture. Right/wrong marks are saved in this browser only (localStorage) — they don't sync across devices.</footer>
+  </main>
+  <script>
+    const sections = [
+      { title: "Clustering as a problem", questions: [
+        ["You run Euclidean k-means on customers described by <code>[age in years, income in dollars]</code> without scaling. What do you expect?",["Age and income contribute equally","Clusters are driven almost entirely by age","Clusters are driven almost entirely by income, because its differences are orders of magnitude larger","K-means rescales features internally, so nothing changes"],2,"Euclidean distance adds squared differences; a $10,000 income gap swamps a 30-year age gap. Standardize features first, or the unit choice decides the clustering."],
+        ["Two analysts cluster the same dataset with the same algorithm and get different but sensible groupings. The most fundamental reason:",["One of them has a bug","K-means is non-deterministic","They chose different features or similarity measures, and clustering has no ground truth to say which is right","The dataset is too small"],2,"'Similar' is a modelling choice. Change the representation and a different grouping becomes the optimal one — both can be valid."],
+        ["Run A labels three clusters {0, 1, 2}. Run B produces the same partition but labels them {2, 0, 1}. Are these the same clustering?",["No — the labels differ","Only if k = 3","Only if the centroids are identical to machine precision","Yes — cluster IDs are arbitrary; only the partition matters"],3,"Label permutation (label switching) changes nothing. This is also why you can't score a clustering with plain accuracy against ground-truth labels."],
+        ["Why can't you choose between two clusterings by 'accuracy' the way you would for a classifier?",["Clustering is too slow to evaluate","Clusterings always have 100% accuracy","Accuracy only works for k = 2","There are no labels in unsupervised learning, and even if there were, cluster IDs are arbitrary permutations"],3,"No targets to compare to — evaluation uses internal criteria (distortion, elbow) or external measures that are permutation-invariant."],
+        ["Which change can alter <em>what</em> a clustering algorithm considers similar, not just which local optimum it finds?",["Changing the features (e.g. colour instead of intensity)","Changing the random seed","Increasing the max number of iterations","Re-running with the same seed"],0,"Seeds and iteration caps change which solution you land on for the same objective. Features change the objective itself."],
+        ["Multiplying <em>every</em> feature by the same constant 10 before k-means will:",["Change the clusters","Reduce the number of clusters","Make k-means diverge","Leave the partition unchanged — every distance scales by 10, so every argmin is the same"],3,"Uniform scaling (and translation) preserves all distance comparisons. Scaling one feature is what changes results."],
+      ]},
+      { title: "Distance functions and metric properties", questions: [
+        ["K-means minimizes squared Euclidean distance, which is <em>not</em> a metric. Which property fails?",["Symmetry","Non-negativity","d(x, x) = 0","Triangle inequality"],3,"On a line, 0→1→2: squared distances 1 + 1 = 2 < 4 = d(0, 2). It's still fine for k-means, because squaring doesn't change which center is nearest."],
+        ["In the <em>assignment</em> step, does it matter whether you compare <code>||x - c||</code> or <code>||x - c||^2</code>?",["Yes — they pick different nearest centers","Only in high dimensions","No — squaring is monotone on non-negative numbers, so the argmin is identical","Only when k > 2"],2,"Monotone transforms preserve the ordering. Implementations skip the sqrt for speed."],
+        ["In the <em>update</em> step, minimizing the sum of <em>unsquared</em> Euclidean distances instead of squared ones gives a center that is:",["The geometric median — no closed form, and more robust to outliers","Still the mean","The midpoint of the two farthest points","The point closest to the origin"],0,"Only squared L2 gives the mean in closed form. Change the loss and you change the optimal center — the same reason L1 gives the coordinate-wise median (k-medians)."],
+        ["Under the L∞ (max) distance, the set of points at distance 1 from the origin in 2-D is:",["A circle","An axis-aligned square","A diamond (rotated square)","A cross"],1,"max(|x|, |y|) = 1 is a square. L1 gives a diamond, L2 a circle — the 'unit ball' shape tells you what each metric considers equally far."],
+        ["A pair of points has Euclidean distance 5. Which Manhattan distance is impossible?",["5","6","4","7"],2,"For any vector, L∞ ≤ L2 ≤ L1. Manhattan can't be smaller than Euclidean."],
+        ["Two points differ by 10 in one coordinate and by 1 in nine others. Relative to Manhattan, Euclidean distance:",["Is dominated more by the single large difference, because differences are squared","Weights all coordinates equally","Ignores the large difference","Is always larger"],0,"L2 = sqrt(100 + 9) ≈ 10.4, nearly all from one coordinate; L1 = 19 spreads credit. L2 is more sensitive to one big deviation — the same reason means are outlier-sensitive."],
+        ["For two <em>binary</em> vectors, which of these is NOT equal to their Hamming distance?",["Manhattan distance","Euclidean distance","Squared Euclidean distance","Number of positions that differ"],1,"On 0/1 entries each differing position contributes 1 to L1 and 1 to squared L2. Plain Euclidean is the square root of the Hamming distance."],
+        ["Edit distance with deletion cost 5 and insertion cost 2. Is <code>d('abc', 'ab')</code> equal to <code>d('ab', 'abc')</code>?",["Yes — distances are always symmetric","Yes — both are 1 edit","No — one direction needs a deletion (5), the other an insertion (2), so the 'distance' is not symmetric","Undefined — the strings have different lengths"],2,"Unequal insertion/deletion costs break symmetry, so it's not a metric. With equal costs, edit distance is symmetric."],
+        ["Why is Hamming distance a poor choice for comparing 'kitten' and 'xkitten'?",["Hamming is undefined for strings","Hamming always returns 0 for similar strings","One inserted character shifts every later position, so almost every position mismatches even though the strings are nearly identical","It is too expensive"],2,"Hamming compares fixed positions of equal-length sequences. Edit distance allows insertions/deletions, which handle shifts."],
+        ["A 'distance' compares only the first feature: <code>d(x, y) = |x_1 - y_1|</code>. What goes wrong for clustering?",["Different points can have distance 0 (positive separability fails), so points that differ elsewhere are indistinguishable","It violates symmetry","It violates the triangle inequality","Nothing — it's a valid metric"],0,"(1, 5) and (1, 100) would be at distance 0. Without separability you can't tell different objects apart."],
+        ["Which metric best matches travel distance between two intersections in a city grid?",["Euclidean","L∞","Manhattan","Hamming"],2,"You can only move along streets, so the cost is the sum of horizontal and vertical legs."],
+      ]},
+      { title: "Curse of dimensionality", questions: [
+        ["In d = 1000, roughly what fraction of a ball's volume lies in its outer shell of thickness 1% of the radius?",["About 1%","About 10%","About 50%","Essentially all of it (≈ 99.99%)"],3,"Shell fraction = 1 - 0.99^1000 ≈ 1 - 4.3e-5. Volume scales as r^d, so in high d almost everything is near the surface."],
+        ["As dimension grows with a fixed number of points, the ratio (nearest-neighbour distance) / (farthest-neighbour distance) tends toward:",["1","0","∞","It stays constant"],0,"Distances concentrate — every point is roughly equally far from every other — so 'nearest' carries little information and distance-based clustering weakens."],
+        ["You add 200 pure-noise features to a dataset with 5 informative ones, then run k-means. Most likely effect:",["Clusters get sharper","No effect — k-means ignores noise","The noise adds similar variance to every pairwise distance and drowns out the informative structure","K-means fails to converge"],2,"Euclidean distance weights every dimension equally. Irrelevant dimensions dominate the sum."],
+        ["Which is the most direct mitigation of the curse of dimensionality before clustering?",["Reduce dimensionality (feature selection or PCA)","Increase k","Use more iterations","Use squared distances"],0,"Fewer, more informative dimensions restore contrast between distances. (The data needed to fill space grows exponentially in d, so 'just get more data' rarely scales.)"],
+      ]},
+      { title: "K-means mechanics", questions: [
+        ["With Euclidean distance, the boundary between the regions owned by two centers c_1 and c_2 is:",["A circle around c_1","A parabola","The perpendicular bisector (hyperplane) of the segment c_1–c_2","Whatever shape the data has"],2,"Points equidistant from two centers lie on the perpendicular bisector. All k centers together tile space into Voronoi cells."],
+        ["Because of that, the region of space assigned to any one k-means center is always:",["Non-convex","Convex (a Voronoi cell — an intersection of half-spaces)","A sphere of fixed radius","Disconnected"],1,"This is the real reason k-means can't capture rings, moons or other non-convex shapes, no matter the k or initialization."],
+        ["Why is the updated center the <em>mean</em> of its assigned points?",["By convention","The mean is the unique minimizer of the sum of squared distances to a set of points","The mean is always one of the data points","It's the fastest statistic to compute"],1,"Set the gradient of Σ||x_i - c||^2 to zero → c = mean. The choice of squared loss forces the mean."],
+        ["A k-means center is <em>not</em> generally:",["A point in R^d","One of the actual data points","The mean of its cluster after an update","Inside the convex hull of its cluster"],1,"The mean usually lands between data points. If you need a real data point as the representative (e.g. non-vector data), you use k-medoids."],
+        ["A cluster has points {1, 2, 3, 100} in 1-D. Which center best describes the 'typical' member, and which does k-means use?",["Median 2.5; k-means uses the median","Mean 26.5; k-means uses the mean — pulled far by one outlier","Both give 2.5","Mean 2; k-means drops the outlier"],1,"The mean (26.5) sits near none of the points. That's k-means' outlier sensitivity; L1 / k-medians would use the median (2.5)."],
+        ["With k = 3 and one extreme outlier far from everything, a plausible k-means result is:",["The outlier is ignored","K-means refuses to converge","One center is spent on the outlier alone, and two real clusters get merged","The outlier becomes the center of the largest cluster"],2,"The outlier contributes a huge squared error, so giving it its own center can lower distortion more than splitting real groups."],
+        ["When can a cluster become empty during Lloyd's iterations?",["Never","When no point has that center as its nearest — e.g. a center initialized far from all data","Only when k > n","Only in 1-D"],1,"Then its mean is undefined (0/0). Implementations re-seed it, e.g. at the point with the largest current error."],
+        ["Given the <em>same</em> initial centers, two runs of standard (batch) k-means on the same data produce:",["Different results every time","The same centers but different labels","The same result — all randomness comes from initialization","Results that depend on point order"],2,"Assignment and update are deterministic. Seeds matter only because they pick the initial centers."],
+        ["In batch k-means, does the order in which points are assigned within one assignment step matter?",["Yes — earlier points move the centers","No — every point is assigned against the same fixed centers; centers move only in the update step","Only for the first iteration","Only with ties"],1,"That's what separates batch Lloyd's algorithm from online/sequential variants that update centers after each point."],
+        ["What does hard assignment throw away that a soft (probabilistic) method like GMM keeps?",["The cluster centers","How uncertain a point's membership is — a point on the boundary counts fully for one cluster","The distance function","Convergence guarantees"],1,"A point equidistant from two centers is forced into one. Soft assignment gives it, say, 50/50 responsibility."],
+        ["The assignment step is often compared to the E-step of EM because it:",["Updates the parameters","Maximizes the likelihood over k","Computes the expected number of clusters","Infers each point's hidden (latent) cluster membership given the current parameters"],3,"E-step: infer latent variables with parameters fixed. M-step (center update): re-fit parameters with memberships fixed."],
+      ]},
+      { title: "The objective as an optimization problem", questions: [
+        ["Viewed as optimization, Lloyd's algorithm is:",["Gradient descent on the centers","Random search","A convex solver that finds the global minimum","Coordinate descent: alternately minimize J over assignments (centers fixed) and over centers (assignments fixed)"],3,"Each half-step is solved exactly. Alternating exact block minimizations gives monotone decrease, but only to a local optimum."],
+        ["Each half-step of k-means is easy, yet minimizing over (centers, assignments) jointly is NP-hard. Why?",["The mean is hard to compute","The objective is unbounded","Distances are hard to compute in high d","The assignments are discrete — the joint search is combinatorial (k^n possibilities) and the objective is non-convex over it"],3,"Fixing one block makes the other trivial; searching both together is a combinatorial problem."],
+        ["n = 4 points, k = 2. There are 2^4 = 16 labelled assignments. How many distinct ways are there to split the points into 2 non-empty clusters?",["16","8","14","7"],3,"Drop the 2 assignments with an empty cluster (14 left), then divide by 2! for label swaps → 7. k^n overcounts both ways."],
+        ["Is the <em>global-optimum</em> distortion non-increasing in k?",["Yes — with k + 1 centers you can always reuse the best k-solution and place the extra center anywhere useful","No — it can go up","Only for even k","Only in 1-D"],0,"Extra centers can never hurt the optimum, which is why distortion alone can't pick k."],
+        ["You plot the distortion that Lloyd's algorithm actually returns for k = 1..8 and see it go <em>up</em> from k = 5 to k = 6. Explanation?",["A bug — this is impossible","The elbow is at k = 5","Distortion is supposed to increase with k","Lloyd's returns local optima; the k = 6 run got stuck in a worse one. Use restarts"],3,"The global optimum is monotone in k; a single local search isn't. Gotcha: an elbow plot from one random init per k can be jagged."],
+        ["When can the k-means objective reach exactly 0 with k &lt; n?",["Only if the data has at most k distinct locations (duplicate points)","Never","Whenever the algorithm converges","When k = n - 1"],0,"Zero distortion means every point sits on its center, so there are at most k distinct points."],
+        ["Shifting the entire dataset by a constant vector before k-means:",["Changes the partition","Makes initialization irrelevant","Doubles the distortion","Leaves the partition unchanged — centers shift by the same vector"],3,"Distances are translation-invariant."],
+      ]},
+      { title: "Convergence and initialization", questions: [
+        ["Which three facts together guarantee that k-means terminates?",["J ≥ 0, neither step increases J, and there are finitely many possible assignments","Convexity, smoothness, a small learning rate","A max-iterations cap, k < n, Euclidean distance","Random initialization, restarts, the elbow method"],0,"A non-increasing sequence over a finite set of partitions can't keep changing forever (with consistent tie-breaking, no partition repeats)."],
+        ["Termination guarantees k-means reaches:",["The global minimum","A local minimum (a fixed point where neither step changes anything)","The point where distortion is 0","The correct number of clusters"],1,"Monotone decrease to a fixed point says nothing about global optimality — the objective is NP-hard to minimize."],
+        ["Your k-means implementation logs a distortion that <em>increases</em> between two iterations. Most likely:",["Normal behaviour near convergence","k is too large","The learning rate is too high","A bug — e.g. assigning with a different distance than the objective uses, or computing J with stale assignments"],3,"Exact Lloyd steps can't increase J. An increase is diagnostic of an implementation error."],
+        ["Why does a well-written k-means need a consistent tie-breaking rule in the assignment step?",["To make it faster","If a point equidistant from two centers flips between them, the algorithm could cycle without decreasing J","Ties are impossible with real numbers","To guarantee the global optimum"],1,"Ties don't change J, so 'J never increases' alone doesn't rule out flip-flopping. A fixed rule (e.g. argmin's first index, or keep the current cluster) does."],
+        ["Then why do libraries still have a <code>max_iter</code> cap?",["Termination isn't guaranteed in theory","Practical runtime bound — the number of iterations to convergence can be large, and floating-point ties can cause tiny oscillations","To find the global minimum","To choose k"],1,"Theory says it terminates; the worst-case iteration count can be enormous and real arithmetic isn't exact."],
+        ["You run k-means 10 times with random inits (same k). Which run do you keep?",["The most common partition","The one with the lowest distortion","The one with the most balanced cluster sizes","The last one"],1,"All runs optimize the same objective, so compare them on it. (Only valid across runs with the same k.)"],
+        ["What is the idea behind k-means++ initialization?",["Initialize all centers at the global mean","Pick k random data points uniformly","Pick each new center with probability proportional to its squared distance from the nearest existing center, spreading centers out","Pick the k points farthest from the origin"],2,"Spread-out starts avoid two centers sharing one true cluster. Side effect: outliers have large distance, so they're more likely to be picked."],
+        ["All k centers are initialized at the same point. What happens?",["Every point ties across all centers; with argmin-first tie-breaking everything joins one cluster and the rest are empty","K-means works normally","It converges to the global minimum","Each center moves to a different cluster automatically"],0,"Identical centers give no way to differentiate. Initialization must give centers distinct positions."],
+      ]},
+      { title: "Choosing k and failure modes", questions: [
+        ["Why can't you choose k by minimizing distortion?",["Distortion keeps decreasing with k and hits 0 at k = n — that's memorizing the data, not finding structure","Distortion is undefined for large k","Distortion is maximized at the right k","Distortion doesn't depend on k"],0,"Same logic as training error in supervised learning: more capacity always fits better."],
+        ["The elbow method picks the k where:",["Distortion is lowest","Adding another cluster stops buying a large drop in distortion (diminishing returns)","Distortion equals half its k = 1 value","Clusters have equal size"],1,"Left of the elbow, you're merging real groups (under-clustering); right of it, you're splitting them (over-clustering)."],
+        ["The distortion-vs-k curve is smooth with no visible elbow. Best interpretation?",["k = 1 is correct","Use k = n","The data may lack clear, well-separated spherical clusters — the elbow method is a heuristic and has no answer here","The algorithm is broken"],2,"The elbow presumes compact separated groups. Without them there's no natural bend."],
+        ["Two concentric rings of points with k = 2. Why does k-means fail even with the right k?",["Both rings share the same center, and k-means' convex Voronoi cells can only cut the plane with a straight line","Not enough iterations","The rings violate the triangle inequality","k-means needs k = 3"],0,"Any straight cut halves both rings. Density-based methods (DBSCAN) or kernel methods handle this."],
+        ["One large, spread-out cluster sits next to a small, tight one. A typical k-means failure:",["It finds them perfectly","The boundary sits at the midpoint between centers, ignoring spread, so the edge of the large cluster gets assigned to the small one","It merges everything","It doesn't converge"],1,"K-means implicitly assumes equal, isotropic spread (Voronoi bisectors). GMM with per-cluster covariances fixes this."],
+        ["Long, thin (elongated) clusters, all tilted the same way. Which change would help k-means most?",["More iterations","Whitening/rescaling the data so clusters become roughly round, or switching to GMM with full covariance","Using L∞ distance","Smaller k"],1,"Euclidean distance treats all directions equally — it assumes round clusters."],
+        ["Which dataset is k-means best suited to?",["Compact, roughly spherical, similarly sized, well-separated blobs","Concentric circles","Two interleaved half-moons","Clusters that differ only in density"],0,"That's the implicit model behind 'nearest mean, squared Euclidean distance'."],
+        ["Your features are categorical (colour ∈ {red, green, blue}). Why is plain k-means awkward?",["The 'mean' of categories is undefined and one-hot Euclidean distances don't reflect category similarity well; k-modes with Hamming distance is the analogue","Categorical data can't be clustered","It needs k = 3","K-means only works in 2-D"],0,"The update step needs an average. Swap in a mode/Hamming-based center and distance."],
+        ["Which drawback does k-means++ address, and which does it not?",["Fixes non-spherical clusters but not initialization","Fixes everything","Helps with bad initialization / local minima, but does nothing for needing k in advance or non-spherical shapes","Fixes outlier sensitivity only"],2,"Initialization schemes change where you start, not the objective's built-in assumptions."],
+      ]},
+      { title: "Complexity", questions: [
+        ["Per Lloyd iteration, which step dominates the cost?",["The assignment step, O(nkd) — every point against every center","The update step, O(nd)","Checking convergence","They're equal"],0,"The update step adds each point to one center once, no factor of k."],
+        ["Doubling k (everything else fixed) roughly does what to the cost of one iteration?",["Doubles it","Nothing","Quadruples it","Halves it"],0,"O(nkd) is linear in k. (The number of iterations I may change too.)"],
+        ["Why is Lloyd's O(Iknd) algorithm used instead of exhaustive search?",["Exhaustive search over k^n assignments is exponential in n — infeasible for any real n","Exhaustive search finds worse solutions","Lloyd's finds the global optimum","Exhaustive search needs labels"],0,"Lloyd's trades optimality for linear-in-n cost."],
+        ["Compared with methods that need all pairwise distances (O(n^2)), k-means scales to large n because:",["It uses squared distances","It only compares points to k centers, so each iteration is linear in n","It ignores most points","It runs one iteration"],1,"n·k distances instead of n² — the reason k-means is the default for big data."],
+      ]},
+      { title: "NumPy — shapes and broadcasting", questions: [
+        ["Broadcasting checks shapes:",["From the left; dims must be equal","From the right; each pair must be equal or one of them must be 1","From the left; dims must be equal or 1","It never checks — it reshapes as needed"],1,"Missing leading dims count as 1. Anything else is an error."],
+        ["Which pair does NOT broadcast?",["(5, 1) and (3,)","(4, 3) and (3,)","(1, 3) and (4, 1)","(4, 3) and (4,)"],3,"Right-aligned, (4, 3) vs (4,) compares 3 with 4 — neither is 1. Classic bug: subtracting per-row stats without keepdims."],
+        ["<code>y</code> has shape (n,) and <code>y_pred</code> has shape (n, 1). What does <code>y - y_pred</code> give?",["An (n,) array of residuals","An error","An (n, n) array — every pair, silently","An (n, 1) array of residuals"],2,"(n,) is treated as (1, n); against (n, 1) it broadcasts to (n, n). No error, wrong answer — the most common shape gotcha in ML code."],
+        ["<code>X</code> is (n, d). You want to subtract each row's mean. Why is <code>X - X.mean(axis=1)</code> dangerous?",["mean(axis=1) is wrong axis","It's slower than a loop","It modifies X in place","The result is (n,), which aligns with the <em>column</em> axis: it errors if n ≠ d and silently subtracts the wrong means if n = d"],3,"Use X.mean(axis=1, keepdims=True) or [:, None] to make it (n, 1)."],
+        ["To compute the centroid (per-feature mean) of the points in <code>X</code> (n, d), use:",["X.mean(axis=1)","X.mean(axis=-1)","X.mean()","X.mean(axis=0)"],3,"axis=0 collapses the rows (points), leaving one value per feature: shape (d,)."],
+        ["Why does <code>X[:, None, :] - C[None, :, :]</code> compute all point–center differences?",["None deletes an axis","It only works when n = k","It loops in Python","(n, 1, d) and (1, k, d) broadcast to (n, k, d): every point paired with every center"],3,"Inserting length-1 axes in complementary positions creates an outer operation."],
+        ["The (n, k, d) broadcast above can be a problem for n = 10^6, k = 100, d = 100. Why, and what's the fix?",["It's slow because of Python loops; use a for loop","It overflows integers; cast to int","It materializes 10^10 floats (~80 GB); expand ||x - c||^2 = ||x||^2 - 2 x·c + ||c||^2 and use X @ C.T, which needs only (n, k)","No problem — NumPy is lazy"],2,"Broadcasting is fast but not free: the intermediate array is fully allocated."],
+        ["Using the expansion <code>||x||^2 - 2x·c + ||c||^2</code>, you take <code>np.sqrt</code> and get a few NaNs. Why?",["The formula is wrong","sqrt doesn't accept arrays","Floating-point cancellation can make tiny distances slightly negative; clip at 0 before sqrt","The centers are empty"],2,"Subtracting large nearly-equal numbers loses precision. For k-means assignment you can skip the sqrt entirely."],
+        ["<code>np.argmin</code> with ties returns:",["A random index among the ties","The last index","The first index among the ties","An error"],2,"Deterministic first-index tie-breaking — exactly the consistent rule k-means needs to avoid flip-flopping."],
+      ]},
+      { title: "NumPy — copies, dtypes, masks, linear algebra", questions: [
+        ["<code>a = np.arange(5)</code>. Which statement changes <code>a</code>?",["b = a[a > 2]; b[:] = 0","b = a[[0, 1]]; b[0] = 9","b = a.copy(); b[0] = 9","a[a > 2] = 0"],3,"Boolean and fancy indexing read returns a copy, so writing to b leaves a alone. Indexed assignment on a writes into a. (Basic slices like a[1:3] are views — writing to those would change a.)"],
+        ["<code>a = np.array([1, 2, 3]); a[0] = 0.7</code>. What is <code>a[0]</code>?",["0","0.7","1","TypeError"],0,"The array is int, so 0.7 is truncated to 0 on assignment. Gotcha: storing centroids in an int array silently truncates them."],
+        ["Why must each condition be parenthesized in <code>a[(a > 5) & (a % 2 == 0)]</code>?",["Style only","& binds tighter than comparison operators, so without parentheses Python evaluates a different (chained) expression that raises 'truth value is ambiguous'","& doesn't work on arrays","To make it faster"],1,"And `and`/`or` don't work elementwise on arrays at all — use & and | with parentheses."],
+        ["For 2-D arrays A and B of compatible shapes, <code>A * B</code> vs <code>A @ B</code>:",["Same thing","@ only works on square matrices","* is matrix multiplication; @ is element-wise","* is element-wise (needs broadcastable shapes); @ is matrix multiplication (needs inner dims to match)"],3,"Mixing them up is silent when shapes happen to broadcast — e.g. two (n, n) matrices."],
+        ["<code>np.linalg.inv</code> on a matrix whose rows are linearly dependent:",["Always raises an error","May return enormous meaningless values instead of raising, because roundoff makes det ≈ 1e-16 rather than exactly 0","Returns the identity","Returns the pseudo-inverse"],1,"Check the condition number, or use np.linalg.pinv (any matrix) / np.linalg.solve (systems)."],
+        ["To solve Ax = b, why prefer <code>np.linalg.solve(A, b)</code> over <code>np.linalg.inv(A) @ b</code>?",["solve is less accurate","They're identical in every way","inv doesn't accept vectors","solve is faster and more numerically stable — forming the inverse explicitly is extra work and amplifies error"],3,"Rule of thumb: you rarely need the inverse itself, just its action on a vector."],
+        ["Why is vectorized NumPy code dramatically faster than a Python loop doing the same arithmetic?",["The per-element loop runs in compiled C over contiguous memory instead of in the interpreter with per-object overhead","NumPy uses the GPU","NumPy skips some elements","Python loops are limited to 1000 iterations"],0,"The speedup grows with array size; it's interpreter overhead, not different math."],
+        ["A 3x3 averaging blur kernel has every entry 1/9. If you use all 1s instead, the blurred image:",["Looks the same","Becomes darker","Becomes about 9x brighter (and may overflow/clip), because the kernel no longer sums to 1","Gets sharper"],2,"A smoothing kernel should sum to 1 to preserve average intensity."],
+        ["You draw 1000 samples from N(0, 1) and compute np.mean and np.std. You get 0.03 and 0.98. Bug?",["No — sample estimates fluctuate; the mean's standard error is about 1/sqrt(1000) ≈ 0.03","Yes — they should be exactly 0 and 1","Yes — the RNG is broken","Yes — std should be 0"],0,"Estimates converge as n grows but are never exact for finite samples."],
+        ["Which matrix is NOT a valid covariance for a 2-D Gaussian?",["[[1, 0], [0, 1]]","[[1, -20], [-20, 625]]","[[1, 2], [2, 1]]","[[4, 1], [1, 4]]"],2,"A covariance must be symmetric positive semi-definite. [[1, 2], [2, 1]] has determinant -3 (an eigenvalue of -1): it would imply correlation 2. [[1, -20], [-20, 625]] is valid: correlation -0.8."],
+      ]},
+    ];
+
+    const letters = ["A", "B", "C", "D"];
+    const escapeHtml = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    const STORAGE_KEY = "km-mcq-progress-v2";
+    const FILTER_KEY = "km-mcq-filter-v2";
+
+    function loadProgress() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+      catch (e) { return {}; }
+    }
+    function saveProgress(progress) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+      catch (e) { /* localStorage unavailable — progress just won't persist */ }
+    }
+    function loadFilter() {
+      try { return localStorage.getItem(FILTER_KEY) || "all"; }
+      catch (e) { return "all"; }
+    }
+    function saveFilter(f) {
+      try { localStorage.setItem(FILTER_KEY, f); }
+      catch (e) { /* ignore */ }
+    }
+
+    let progress = loadProgress();
+    let currentFilter = loadFilter();
+
+    let number = 0;
+    const bank = document.getElementById("bank");
+    for (const section of sections) {
+      const wrapper = document.createElement("section");
+      wrapper.className = "topic";
+
+      const heading = document.createElement("h2");
+      heading.textContent = section.title;
+      wrapper.appendChild(heading);
+
+      const list = document.createElement("ol");
+      list.className = "questions";
+      list.start = number + 1;
+
+      for (const [prompt, options, answerIndex, explanation] of section.questions) {
+        number += 1;
+        const n = String(number);
+        const item = document.createElement("li");
+        item.className = "question";
+        item.dataset.n = n;
+        item.innerHTML = `
+          <div class="prompt">${prompt}</div>
+          <ol class="options" type="A">
+            ${options.map(option => `<li>${escapeHtml(option)}</li>`).join("")}
+          </ol>
+          <details>
+            <summary>Show answer</summary>
+            <p class="answer"><strong>${letters[answerIndex]}.</strong> ${escapeHtml(options[answerIndex])}<br>${escapeHtml(explanation)}</p>
+          </details>
+          <div class="track" data-n="${n}">
+            <button class="mark correct" type="button">✓ Got it right</button>
+            <button class="mark wrong" type="button">✗ Got it wrong</button>
+            <span class="status-label"></span>
+          </div>`;
+        list.appendChild(item);
+      }
+      wrapper.appendChild(list);
+      bank.appendChild(wrapper);
+    }
+
+    const totalQuestions = number;
+
+    function updateTrackUI(track) {
+      const n = track.dataset.n;
+      const status = progress[n];
+      track.querySelector(".mark.correct").classList.toggle("active", status === "correct");
+      track.querySelector(".mark.wrong").classList.toggle("active", status === "wrong");
+      const label = track.querySelector(".status-label");
+      label.textContent = status === "correct" ? "Marked correct" : status === "wrong" ? "Marked wrong — review this" : "";
+    }
+
+    function applyFilter() {
+      let anyVisible = 0;
+      bank.querySelectorAll(".topic").forEach(sectionEl => {
+        let visibleInSection = 0;
+        sectionEl.querySelectorAll("li.question").forEach(li => {
+          const status = progress[li.dataset.n];
+          let show = true;
+          if (currentFilter === "wrong") show = status === "wrong";
+          else if (currentFilter === "correct") show = status === "correct";
+          else if (currentFilter === "unanswered") show = !status;
+          li.hidden = !show;
+          if (show) visibleInSection++;
+        });
+        sectionEl.hidden = visibleInSection === 0;
+        anyVisible += visibleInSection;
+      });
+      const emptyState = document.getElementById("emptyState");
+      if (anyVisible === 0) {
+        const messages = {
+          wrong: "Nothing marked wrong yet — nice work, or you haven't graded yourself yet.",
+          correct: "Nothing marked correct yet.",
+          unanswered: "Everything has been marked — nice work.",
+          all: "No questions to show.",
+        };
+        emptyState.textContent = messages[currentFilter] || "No questions to show.";
+        emptyState.hidden = false;
+      } else {
+        emptyState.hidden = true;
+      }
+    }
+
+    function updateCount() {
+      let correct = 0, wrong = 0;
+      for (const n in progress) {
+        if (progress[n] === "correct") correct++;
+        else if (progress[n] === "wrong") wrong++;
+      }
+      const unanswered = totalQuestions - correct - wrong;
+      document.getElementById("count").textContent =
+        `${totalQuestions} questions across ${sections.length} sections · ${correct} correct · ${wrong} wrong · ${unanswered} unanswered`;
+    }
+
+    bank.addEventListener("click", (e) => {
+      const btn = e.target.closest(".mark");
+      if (!btn) return;
+      const track = btn.closest(".track");
+      const n = track.dataset.n;
+      const status = btn.classList.contains("correct") ? "correct" : "wrong";
+      progress[n] = progress[n] === status ? undefined : status;
+      if (progress[n] === undefined) delete progress[n];
+      saveProgress(progress);
+      updateTrackUI(track);
+      applyFilter();
+      updateCount();
+    });
+
+    document.querySelectorAll(".filter").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentFilter = btn.dataset.filter;
+        saveFilter(currentFilter);
+        document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b === btn));
+        applyFilter();
+      });
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      if (!confirm("Clear all saved right/wrong marks for this question bank?")) return;
+      progress = {};
+      saveProgress(progress);
+      bank.querySelectorAll(".track").forEach(updateTrackUI);
+      applyFilter();
+      updateCount();
+    });
+
+    // initial paint
+    bank.querySelectorAll(".track").forEach(updateTrackUI);
+    document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b.dataset.filter === currentFilter));
+    applyFilter();
+    updateCount();
+  </script>
+</body>
+</html>
